@@ -21,6 +21,11 @@ void cop0Handler(mipsDasm *dasm)
 	}
 }
 
+static mipsRegister _signextend(mipsRegister input, mipsRegister sign, int size)
+{
+	return (input & ~(1 << (size - 1))) | (sign & (1 << (size - 1)));
+}
+
 /*
  * Start of the emulated functions.
  * All the opcode translations should go there.
@@ -29,10 +34,20 @@ void cop0Handler(mipsDasm *dasm)
 
 #define MIPS_INSTRUCTION(name)	mipsInstruction name (mipsDasm *dasm)
 
+/*****************************************************************************/
+/*  Arithmetic instructions                                                  */
+/*****************************************************************************/
 /* Add with overflow. */
 MIPS_INSTRUCTION( ADD )
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) + readRegister(dasm->rt));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Add unsigned. */
+MIPS_INSTRUCTION( ADDU )
+{
+	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) + (u64)(readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -50,83 +65,33 @@ MIPS_INSTRUCTION( ADDIU )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Add unsigned. */
-MIPS_INSTRUCTION( ADDU )
+/* Subtract with overflow. */
+MIPS_INSTRUCTION( SUB )
 {
-	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) + (u64)(readRegister(dasm->rt)));
+	setRegister(dasm->rd, readRegister(dasm->rs) - readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-
-/* And. */
-MIPS_INSTRUCTION( AND )
+/* Subtract unsigned. */
+MIPS_INSTRUCTION( SUBU )
 {
-	setRegister(dasm->rd, readRegister(dasm->rs) & readRegister(dasm->rt));
+	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) - (u64)(readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* And immediate. */
-MIPS_INSTRUCTION( ANDI )
+/* Multiply. */
+MIPS_INSTRUCTION( MULT )
 {
-	setRegister(dasm->rt, readRegister(dasm->rs) & dasm->immediate);
+	setRegister(33, readRegister(dasm->rs) * readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-
-/* Branch if equal. */
-MIPS_INSTRUCTION( BEQ )
+/* Multiply unsigned. */
+MIPS_INSTRUCTION( MULTU )
 {
-	if(readRegister(dasm->rs) == readRegister(dasm->rt))
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
+	setRegister(33, (u64)(readRegister(dasm->rs)) * (u64)(readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
 }
-
-/* Branch if greater or equal zero . */
-MIPS_INSTRUCTION( BGEZ )
-{
-	if(readRegister(dasm->rs) >= 0)
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Branch if greater than zero . */
-MIPS_INSTRUCTION( BGTZ )
-{
-	if(readRegister(dasm->rs) > 0)
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Branch if less or equal than zero . */
-MIPS_INSTRUCTION( BLEZ )
-{
-	if(readRegister(dasm->rs) <= 0)
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Branch if less than zero . */
-MIPS_INSTRUCTION( BLTZ )
-{
-	if(readRegister(dasm->rs) < 0)
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Branch if not equal. */
-MIPS_INSTRUCTION( BNE )
-{
-	if(readRegister(dasm->rs) != readRegister(dasm->rt))
-		advancePC(dasm->immediate << 2);
-	else
-		advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
 
 /* Divide. */
 MIPS_INSTRUCTION( DIV )
@@ -144,111 +109,23 @@ MIPS_INSTRUCTION( DIVU )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Jump. */
-MIPS_INSTRUCTION( J )
-{
-	setJump(dasm->jump, 0);
-}
 
-/* Jump and link. */
-MIPS_INSTRUCTION( JAL )
+/*****************************************************************************/
+/*  Logical instructions                                                     */
+/*****************************************************************************/
+/* And. */
+MIPS_INSTRUCTION( AND )
 {
-	setJump(dasm->jump, 1);
-}
-
-/* Jump and link register. */
-MIPS_INSTRUCTION( JALR )
-{
-	setJump(readRegister(dasm->rs), 1);
-}
-
-/* Jump register. */
-MIPS_INSTRUCTION( JR )
-{
-	setPC(readRegister(dasm->rs));
-}
-
-/* Load byte. */
-MIPS_INSTRUCTION( LB )
-{
-	setRegister(dasm->rt, emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate));
+	setRegister(dasm->rd, readRegister(dasm->rs) & readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Load byte unsigned. */
-MIPS_INSTRUCTION( LBU )
+/* And immediate. */
+MIPS_INSTRUCTION( ANDI )
 {
-	setRegister(dasm->rt, (u8)(emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate)));
+	setRegister(dasm->rt, readRegister(dasm->rs) & dasm->immediate);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
-
-/* Load halfword unsigned. */
-MIPS_INSTRUCTION( LHU )
-{
-	setRegister(dasm->rt, (u64)(emulatedCpu.readHword((u64)(readRegister(dasm->rs)) + (u64)(dasm->immediate))));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Load upper immediate. */
-MIPS_INSTRUCTION( LUI )
-{
-	setRegister(dasm->rt, dasm->immediate << 16);
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Load word. */
-MIPS_INSTRUCTION( LW )
-{
-	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from coprocessor 0. */
-MIPS_INSTRUCTION( MFC0 )
-{
-	cop0Handler(dasm);
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from HI. */
-MIPS_INSTRUCTION( MFHI )
-{
-	setRegister(dasm->rd, readRegister(REGISTER_HI));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from LO. */
-MIPS_INSTRUCTION( MFLO )
-{
-	setRegister(dasm->rd, readRegister(REGISTER_LO));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-
-/* Multiply. */
-MIPS_INSTRUCTION( MULT )
-{
-	setRegister(33, readRegister(dasm->rs) * readRegister(dasm->rt));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Multiply unsigned. */
-MIPS_INSTRUCTION( MULTU )
-{
-	setRegister(33, (u64)(readRegister(dasm->rs)) * (u64)(readRegister(dasm->rt)));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-
-/* No-operation. */
-MIPS_INSTRUCTION( NOOP )
-{
-#ifdef DEBUG
-	exit(-6);
-#endif
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
 
 /* Or. */
 MIPS_INSTRUCTION( OR )
@@ -264,24 +141,47 @@ MIPS_INSTRUCTION( ORI )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Store byte. */
-MIPS_INSTRUCTION( SB )
+/* Exclusive or. */
+MIPS_INSTRUCTION( XOR )
 {
-	emulatedCpu.writeByte(readRegister(dasm->rs) + (dasm->immediate & 0xFF), readRegister(dasm->rt));
+	setRegister(dasm->rd, readRegister(dasm->rs) ^ readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Shift left logical. */
-MIPS_INSTRUCTION( SLL )
+/* Nor. */
+MIPS_INSTRUCTION( NOR )
 {
-	setRegister(dasm->rd, readRegister(dasm->rt) << dasm->shift);
+	setRegister(dasm->rd, ~(readRegister(dasm->rs) | readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Shift right logical. */
-MIPS_INSTRUCTION( SRL )
+/* Set if less than. */
+MIPS_INSTRUCTION( SLT )
 {
-	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
+	if(readRegister(dasm->rs) < readRegister(dasm->rt))
+		setRegister(dasm->rd, 1);
+	else
+		setRegister(dasm->rd, 0);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Set if less than immediate unsigned. */
+MIPS_INSTRUCTION( SLTU )
+{
+	if((mipsRegister)readRegister(dasm->rs) < (mipsRegister)readRegister(dasm->rt))
+		setRegister(dasm->rd, 1);
+	else
+		setRegister(dasm->rd, 0);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Set if less than immediate. */
+MIPS_INSTRUCTION( SLTI )
+{
+	if(readRegister(dasm->rs) < dasm->immediate)
+		setRegister(dasm->rt, 1);
+	else
+		setRegister(dasm->rt, 0);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -295,6 +195,496 @@ MIPS_INSTRUCTION( SLTIU )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
+
+/*****************************************************************************/
+/*  Bitwise Shift instructions                                               */
+/*****************************************************************************/
+/* Shift left logical. */
+MIPS_INSTRUCTION( SLL )
+{
+	setRegister(dasm->rd, readRegister(dasm->rt) << dasm->shift);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Shift left logical variable. */
+MIPS_INSTRUCTION( SLLV )
+{
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) << readRegister(dasm->rs), readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Shift right logical. */
+MIPS_INSTRUCTION( SRL )
+{
+	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Shift right logical variable. */
+MIPS_INSTRUCTION( SRLV )
+{
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Shift right arithmetic. */
+MIPS_INSTRUCTION( SRA )
+{
+	/* TODO: Sign Extend */
+	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Shift right arithmetic variable. */
+MIPS_INSTRUCTION( SRAV )
+{
+	/* TODO: Sign Extend */
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+
+/*****************************************************************************/
+/*  Conditional Branch instructions                                          */
+/*****************************************************************************/
+/* Branch on equal. */
+MIPS_INSTRUCTION( BEQ )
+{
+	if(readRegister(dasm->rs) == readRegister(dasm->rt))
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch on equal likely. */
+MIPS_INSTRUCTION( BEQL )
+{
+	if(readRegister(dasm->rs) == readRegister(dasm->rt)) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if greater or equal zero. */
+MIPS_INSTRUCTION( BGEZ )
+{
+	if(readRegister(dasm->rs) >= 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if greater or equal zero likely. */
+MIPS_INSTRUCTION( BGEZL )
+{
+	if(readRegister(dasm->rs) >= 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if greater or equal zero and link. */
+MIPS_INSTRUCTION( BGEZAL )
+{
+	doLink(0, 0);
+	if(readRegister(dasm->rs) >= 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if greater or equal zero and link likely. */
+MIPS_INSTRUCTION( BGEZALL )
+{
+	doLink(0, 0);
+	if(readRegister(dasm->rs) >= 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if greater than zero. */
+MIPS_INSTRUCTION( BGTZ )
+{
+	if(readRegister(dasm->rs) > 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if greater than zero likely. */
+MIPS_INSTRUCTION( BGTZL )
+{
+	if(readRegister(dasm->rs) > 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if less or equal than zero. */
+MIPS_INSTRUCTION( BLEZ )
+{
+	if(readRegister(dasm->rs) <= 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if less or equal than zero likely. */
+MIPS_INSTRUCTION( BLEZL )
+{
+	if(readRegister(dasm->rs) <= 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if less than zero. */
+MIPS_INSTRUCTION( BLTZ )
+{
+	if(readRegister(dasm->rs) < 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if less than zero likely. */
+MIPS_INSTRUCTION( BLTZL )
+{
+	if(readRegister(dasm->rs) < 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if less than zero and link. */
+MIPS_INSTRUCTION( BLTZAL )
+{
+	doLink(0, 0);
+	if(readRegister(dasm->rs) < 0)
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if less than zero and link likely. */
+MIPS_INSTRUCTION( BLTZALL )
+{
+	doLink(0, 0);
+	if(readRegister(dasm->rs) < 0) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if not equal. */
+MIPS_INSTRUCTION( BNE )
+{
+	if(readRegister(dasm->rs) != readRegister(dasm->rt))
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	else
+		advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Branch if not equal. */
+MIPS_INSTRUCTION( BNEL )
+{
+	if(readRegister(dasm->rs) != readRegister(dasm->rt)) {
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+	}else{
+		/* We need to nullify the instruction in the branch delay slot here. */
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+
+/*****************************************************************************/
+/*  Unconditional Jump instructions                                          */
+/*****************************************************************************/
+/* Jump. */
+MIPS_INSTRUCTION( J )
+{
+	setJump(dasm->jump);
+}
+
+/* Jump and link. */
+MIPS_INSTRUCTION( JAL )
+{
+	doLink(0, 0);
+	setJump(dasm->jump);
+}
+
+/* Jump and link register. */
+MIPS_INSTRUCTION( JALR )
+{
+	doLink(1, dasm->rd);
+	setJump(readRegister(dasm->rs));
+}
+
+/* Jump register. */
+MIPS_INSTRUCTION( JR )
+{
+	setJump(readRegister(dasm->rs));
+}
+
+
+/*****************************************************************************/
+/*  Data Load instructions                                                   */
+/*****************************************************************************/
+/* Load byte. */
+MIPS_INSTRUCTION( LB )
+{
+	setRegister(dasm->rt, (s8)(emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load byte unsigned. */
+MIPS_INSTRUCTION( LBU )
+{
+	setRegister(dasm->rt, emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load halfword. */
+MIPS_INSTRUCTION( LH )
+{
+	setRegister(dasm->rt, (s16)(emulatedCpu.readHword(readRegister(dasm->rs) + dasm->immediate)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load halfword unsigned. */
+MIPS_INSTRUCTION( LHU )
+{
+	setRegister(dasm->rt, emulatedCpu.readHword(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load upper immediate. */
+MIPS_INSTRUCTION( LUI )
+{
+	setRegister(dasm->rt, dasm->immediate << 16);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load word. */
+MIPS_INSTRUCTION( LW )
+{
+	setRegister(dasm->rt, (s32)(emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load word left. */
+MIPS_INSTRUCTION( LWL )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	for(i = 0; i < (vAddr % 4); i++) {
+		final |= emulatedCpu.readByte(vAddr + i) << 31 - (i * 4);
+	}
+	setRegister(dasm->rt, final);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load word right. */
+MIPS_INSTRUCTION( LWR )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	for(i = 0; i < (vAddr % 4); i++) {
+		final |= emulatedCpu.readByte(vAddr + i) << (i * 4);
+	}
+	setRegister(dasm->rt, final);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load word unsigned. */
+MIPS_INSTRUCTION( LWU )
+{
+	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load doubleword. */
+MIPS_INSTRUCTION( LD )
+{
+	setRegister(dasm->rt, (s64)(emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load doubleword unsigned. */
+MIPS_INSTRUCTION( LDU )
+{
+	setRegister(dasm->rt, emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load doubleword left. */
+MIPS_INSTRUCTION( LDL )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	for(i = 0; i < (vAddr % 8); i++) {
+		final |= emulatedCpu.readByte(vAddr + i) << 64 - ((i + 1) * 8);
+	}
+	setRegister(dasm->rt, final);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load doubleword right. */
+MIPS_INSTRUCTION( LDR )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	for(i = 0; i < (vAddr % 8); i++) {
+		final |= emulatedCpu.readByte(vAddr + i) << (i * 8);
+	}
+	setRegister(dasm->rt, final);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load linked (word). */
+MIPS_INSTRUCTION( LL )
+{
+	/* I'm sure I need to do other things here... */
+	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Load linked doubleword. */
+MIPS_INSTRUCTION( LLD )
+{
+	/* I'm sure I need to do other things here... */
+	setRegister(dasm->rt, emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+
+/*****************************************************************************/
+/*  Data Store instructions                                                  */
+/*****************************************************************************/
+/* Store byte. */
+MIPS_INSTRUCTION( SB )
+{
+	emulatedCpu.writeByte(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 8) - 1));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store word. */
+MIPS_INSTRUCTION( SH )
+{
+	emulatedCpu.writeHword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 32) - 1));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+			      
+/* Store word. */
+MIPS_INSTRUCTION( SW )
+{
+	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 32) - 1));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store word left. */
+MIPS_INSTRUCTION( SWL )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	u64 regval = readRegister(dasm->rt);
+	for(i = (vAddr % 4); i < 4; i++)
+		emulatedCpu.writeByte(vAddr + i, regval >> (32 - ((i + 1) * 4)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store word right. */
+MIPS_INSTRUCTION( SWR )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	u64 regval = readRegister(dasm->rt);
+	for(i = (vAddr % 4); i < 4; i++)
+		emulatedCpu.writeByte(vAddr + i, regval >> (i * 4));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store doubleword. */
+MIPS_INSTRUCTION( SD )
+{
+	emulatedCpu.writeDword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 64) - 1));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store doubleword left. */
+MIPS_INSTRUCTION( SDL )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	u64 regval = readRegister(dasm->rt);
+	for(i = (vAddr % 8); i < 8; i++)
+		emulatedCpu.writeByte(vAddr + i, regval >> (64 - ((i + 1) * 8)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Store doubleword right. */
+MIPS_INSTRUCTION( SDR )
+{
+	s64 final = 0;
+	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	u64 regval = readRegister(dasm->rt);
+	for(i = (vAddr % 8); i < 8; i++)
+		emulatedCpu.writeByte(vAddr + i, regval >> (i * 8));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+
+/*****************************************************************************/
+/*  Coprocessor instructions                                                 */
+/*****************************************************************************/
+/* Move from coprocessor 0. */
+MIPS_INSTRUCTION( MFC0 )
+{
+	cop0Handler(dasm);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/*****************************************************************************/
+/*  Special instructions                                                     */
+/*****************************************************************************/
+/* Move from HI. */
+MIPS_INSTRUCTION( MFHI )
+{
+	setRegister(dasm->rd, readRegister(REGISTER_HI));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Move from LO. */
+MIPS_INSTRUCTION( MFLO )
+{
+	setRegister(dasm->rd, readRegister(REGISTER_LO));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* No-operation. */
+MIPS_INSTRUCTION( NOOP )
+{
+#ifdef DEBUG
+	exit(-6);
+#endif
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
 /* Syscall. */
 MIPS_INSTRUCTION( SYSCALL )
 {
@@ -302,15 +692,10 @@ MIPS_INSTRUCTION( SYSCALL )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }	
 
-/* Store word. */
-MIPS_INSTRUCTION( SW )
-{
-	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
+/*****************************************************************************/
+/*  Instruction Tables.                                                      */
+/*****************************************************************************/
 /* General table with all opcodes. */
-
 mipsInstrTbl instructionTable[] = {
 	{NOOP	, ""},
 	{NOOP	, ""},

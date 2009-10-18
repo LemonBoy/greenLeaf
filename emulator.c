@@ -53,11 +53,17 @@ void advancePC(mipsRegister nextPC)
 #endif
 }
 
-void setJump(mipsJumpAddress jumpAddress, int link)
+void doLink(int r, int reg)
+{
+	int regis = 31;
+	if(r)
+		regis = reg;
+	setRegister(regis, emulatedCpu.pc + DEFAULT_INSTRUCTION_PC);
+}
+
+void setJump(mipsJumpAddress jumpAddress)
 {
 	emulatedCpu.pc = emulatedCpu.nPc;
-	if(link)
-		setRegister(31, emulatedCpu.pc + DEFAULT_INSTRUCTION_PC);
 	emulatedCpu.nPc = (emulatedCpu.pc & 0xf0000000) | (jumpAddress << 2);
 #ifdef DEBUG	
 	printf("Jump -> Next pc is 0x%08X\n", emulatedCpu.nPc);
