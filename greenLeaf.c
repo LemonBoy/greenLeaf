@@ -72,10 +72,7 @@ int main(int argc, char *argv[])
 	initializeCPU(ENDIANNESS_LE, 0x80000000);
 
 	ret = openElf(filename, 0xBFC00000);
-	if(ret < 0) {
-		printf("Unable to open %s!\n", filename);
-		assert(ret >= 0);
-	}
+
 	printf("Entry %#x\n",	(u32)ret);
 	
 	printf("Uart %i\n",	setupUart(0xB40003F0));

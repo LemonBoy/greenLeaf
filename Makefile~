@@ -4,7 +4,7 @@ DEFINES = -DDEBUG
 
 all: $(OUTPUT)
 %.o: %.c
-	gcc -Wall -O2 $(DEFINES) -c -o $@ $<
+	gcc -Wall $(DEFINES) -c -o $@ $<
 $(OUTPUT): $(OBJECTS)
 	gcc -o $(OUTPUT) $(OBJECTS)
 clean:

@@ -4,6 +4,11 @@
 #include "emulator.h"
 #include "dasm.h"
 
+/* README:
+ * All the branch instruction follows the one-instruction-delay-slot rule
+ * so remember to add it into dasmOpcode rules (dasm.c) for the sake of
+ * emulation goodness. */
+
 void cop0Handler(mipsDasm *dasm)
 {
 	switch (dasm->rs)
@@ -75,6 +80,19 @@ mipsInstruction ADDU (mipsDasm *dasm)
 mipsInstruction BEQ (mipsDasm *dasm)
 {
 	if (readRegister(dasm->rs) == readRegister(dasm->rt))
+	{
+		advancePC(dasm->immediate << 2);
+	} else
+	{
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if greater or equal zero . */
+
+mipsInstruction BGEZ (mipsDasm *dasm)
+{
+	if (readRegister(dasm->rs) >= 0)
 	{
 		advancePC(dasm->immediate << 2);
 	} else
@@ -336,6 +354,9 @@ mipsInstrTbl instructionTable[] = {
 	{NOOP, ""} // 70				
 };
 
+/* Special opcodes.
+ * The first six bits are 000000 and the instruction is encoded in the last six bits. */
+
 mipsInstrTbl specialInstructionTable[] = {
 	{SLL, "SLL %d, %t, %h"},
 	{NOOP, ""},
@@ -380,26 +401,49 @@ mipsInstrTbl specialInstructionTable[] = {
 	{NOOP, ""} // 40	
 };	
 
+/* Regimm opcodes.
+ * The first six bits are 000001 and the instruction is encoded in the t register space. */
+
+mipsInstrTbl regimmInstructionTable[] = {
+	{NOOP, ""},
+	{BGEZ, "BGEZ %s, %i"},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""},
+	{NOOP, ""}
+};
+
 void execOpcode(mipsDasm *dasm)
 {
 #ifdef DEBUG		
 	printf("Instruction %#x Function %#x\n", dasm->instruction, dasm->funct);
 #endif
-	if (dasm->instruction != 0)
-	{
+	if (dasm->instruction != 0) {
 		instructionTable[dasm->instruction].execute(dasm);
-	} else {
+	} else if (dasm->instruction == 0) {
 		specialInstructionTable[dasm->funct].execute(dasm);
-	}	
+	} else if (dasm->instruction == 1) {
+		regimmInstructionTable[dasm->rt].execute(dasm);
+	}
 }
 
 char* textOpcode(mipsDasm *dasm)
 {
-	if (dasm->instruction != 0)
-	{
+	if (dasm->instruction != 0) {
 		return dasmFormat(instructionTable[dasm->instruction].textDisasm, dasm);
-	} else {
+	} else if (dasm->instruction == 0) {
 		return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
+	} else if (dasm->instruction == 1) {
+		return dasmFormat(regimmInstructionTable[dasm->rt].textDisasm, dasm);
 	}
 	return "Not implemented";
 }

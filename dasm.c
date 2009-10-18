@@ -5,6 +5,13 @@
 #include "emulator.h"
 #include "dasm.h"
 
+#define OUTCHAR(str, len, size, ch)                                          \
+do {                                                                         \
+	if (len + 1 < size)                                                  \
+		str[len] = ch;                                               \
+	(len)++;                                                             \
+} while (/* CONSTCOND */ 0)
+
 char *registerName[34] = {
 	"zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
 	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
@@ -47,17 +54,17 @@ char* dasmFormat(char *haystack, mipsDasm *dasm)
 				case 'i':
 					sprintf(fmtBuf, "%#x", dasm->immediate);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf);
+					len += strlen(fmtBuf) - 1;
 					break;
 				case 'j':
 					sprintf(fmtBuf, "%#x", dasm->jump);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf);
+					len += strlen(fmtBuf) - 1;
 					break;
 				case 'h':
 					sprintf(fmtBuf, "%#x", dasm->shift);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf);
+					len += strlen(fmtBuf) - 1;
 					break;
 			}
 		}else{
@@ -85,7 +92,7 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 	dasm->jump = JUMP(opcode);
 	dasm->funct = FUNCT(opcode);
 	
-	if(dasm->instruction != 0) {
+	if (dasm->instruction != 0) {
 		switch(dasm->instruction) {
 			case 0x2:
 			case 0x3:
@@ -97,10 +104,19 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 				dasm->delay = 0;
 				break;
 		}
-	}else{
+	} else if (dasm->instruction == 0) {
 		switch(dasm->funct) {
 			case 0x8:
 			case 0x9:
+				dasm->delay = 1;
+				break;
+			default:
+				dasm->delay = 0;
+				break;
+		}
+	} else if (dasm->instruction == 1) {
+		switch (dasm->rt) {
+			case 0x1:
 				dasm->delay = 1;
 				break;
 			default:

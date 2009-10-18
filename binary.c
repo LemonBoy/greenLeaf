@@ -29,7 +29,9 @@ u32 openElf(char *path, u32 baseaddr)
 	fread(&elfHdr, 1, sizeof(Elf32_Ehdr), fd);
 	
 	if(!isValidMipsElf(&elfHdr))
+	{
 		return -1;
+	}
 
 	for(section = 0; section < elfHdr.e_shnum; section++) {
 		fseek(fd, elfHdr.e_shoff + (section * sizeof(Elf32_Shdr)), SEEK_SET);
@@ -59,6 +61,6 @@ u32 openElf(char *path, u32 baseaddr)
 	}
 		
 	fclose(fd);
-	
+		
 	return entryPoint;
 }
