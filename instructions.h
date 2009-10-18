@@ -5,6 +5,6 @@
 
 void execOpcode(mipsDasm *dasm);
 
-char * textOpcode(mipsDasm *dasm);
+char* textOpcode(mipsDasm *dasm);
 
 #endif

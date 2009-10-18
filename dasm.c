@@ -1,16 +1,24 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include "types.h"
 #include "emulator.h"
 #include "dasm.h"
 
-char *registerToName(mipsRegister reg)
+char *registerName[34] = {
+	"zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
+	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+	"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
+	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra",
+	"HI", "LO"
+};
+
+char* registerToName(mipsRegister reg)
 {
 	return registerName[reg];
 }
 
-char * dasmFormat(char *haystack, mipsDasm *dasm)
+char* dasmFormat(char *haystack, mipsDasm *dasm)
 {
 	char formattedStr[128];
 	
@@ -19,15 +27,11 @@ char * dasmFormat(char *haystack, mipsDasm *dasm)
 	
 	char fmtBuf[16];
 		
-	while (*hptr)
-	{
+	while (*hptr) {
 		int len = 1;
-
-		if (*hptr == '%')
-		{
+		if(*hptr == '%') {
 			hptr++;
-			switch (*hptr)
-			{
+			switch(*hptr) {
 				case 't':
 					strcpy(&(*fptr), registerToName(dasm->rt));
 					len += strlen(registerToName(dasm->rt)) - 1;
@@ -56,7 +60,7 @@ char * dasmFormat(char *haystack, mipsDasm *dasm)
 					len += strlen(fmtBuf);
 					break;
 			}
-		} else {
+		}else{
 			*fptr = *hptr;
 		}
 		fptr += len;
@@ -81,29 +85,29 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 	dasm->jump = JUMP(opcode);
 	dasm->funct = FUNCT(opcode);
 	
-	if (dasm->instruction != 0)
-	{
-		switch (dasm->instruction)
-		{
+	if(dasm->instruction != 0) {
+		switch(dasm->instruction) {
 			case 0x2:
 			case 0x3:
 			case 0x4:
 			case 0x5:
-				dasm->delay = 1; break;
+				dasm->delay = 1;
+				break;
 			default:
 				dasm->delay = 0;
+				break;
 		}
-	} else
-	{
-		switch (dasm->funct)
-		{
+	}else{
+		switch(dasm->funct) {
 			case 0x8:
 			case 0x9:
-				dasm->delay = 1; break;
+				dasm->delay = 1;
+				break;
 			default:
 				dasm->delay = 0;
+				break;
 		}
-	}	
+	}
 
 	*ret = dasm;
 }	

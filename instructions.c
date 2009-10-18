@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "types.h"
 #include "emulator.h"
 #include "dasm.h"
@@ -392,7 +393,7 @@ void execOpcode(mipsDasm *dasm)
 	}	
 }
 
-char * textOpcode(mipsDasm *dasm)
+char* textOpcode(mipsDasm *dasm)
 {
 	if (dasm->instruction != 0)
 	{

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include "memory.h"
 #include "emulator.h"
 #include "instructions.h"
@@ -14,9 +15,8 @@ void setRegister(mipsRegister reg, u32 value)
 	printf("Write %#x in %s\n", value, registerToName(reg));
 #endif
 	/* Keep r0 hardwired to 0 */
-	if (reg == 0) {
+	if(reg == 0)
 		return;
-	}
 	emulatedCpu.r[reg] = value;
 }
 
@@ -56,9 +56,8 @@ void advancePC(mipsRegister nextPC)
 void setJump(mipsJumpAddress jumpAddress, int link)
 {
 	emulatedCpu.pc = emulatedCpu.nPc;
-	if (link) {
+	if(link)
 		setRegister(31, emulatedCpu.pc + DEFAULT_INSTRUCTION_PC);
-	}
 	emulatedCpu.nPc = (emulatedCpu.pc & 0xf0000000) | (jumpAddress << 2);
 #ifdef DEBUG	
 	printf("Jump -> Next pc is %#x\n", emulatedCpu.nPc);
@@ -88,11 +87,11 @@ void printRegisters()
 {
 	int reg;
 	
-	for (reg = 0; reg < 32; reg++)
-	{
-		printf("%s : %#10x \t%i COP0 %02i : %#10x\n", registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
-	}
-	printf("HI : %#10x \t LO : %#10x\n", emulatedCpu.r[32], emulatedCpu.r[33]);
+	for(reg = 0; reg < 32; reg++)
+		printf( "%s: 0x%08llx\tCOP0 %2d: 0x%08llx\n", \
+			registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
+	printf("HI: 0x%08llx\tLO:      0x%08llx\n", emulatedCpu.r[32], emulatedCpu.r[33]);
+	printf("PC: 0x%08x\tNext PC: 0x%08x\n", emulatedCpu.pc, emulatedCpu.nPc);
 }
 
 /* 
@@ -103,20 +102,14 @@ void initializeCPU(u8 endian, u32 stackPtr)
 {
 	int reg;
 	
-	for (reg = 0; reg < 34; reg++)
-	{
+	for(reg = 0; reg < 34; reg++) {
 		emulatedCpu.r[reg] = 0x0;
-		
-		if (reg == 29)
-		{
+		if(reg == 29)
 			emulatedCpu.r[reg] = stackPtr;
-		}
 	}
 	
-	for (reg = 0; reg < 32; reg++)
-	{
+	for(reg = 0; reg < 32; reg++)
 		emulatedCpu.cop0[reg] = 0x0;
-	}
 	
 	emulatedCpu.pc = 0;
 	emulatedCpu.nPc = 0;
@@ -124,38 +117,40 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	
 	emulatedCpu.endian = endian;
 	
-	switch (emulatedCpu.endian)
-	{
-		case 0x01:
-			{
+	switch (emulatedCpu.endian) {
+		case ENDIANNESS_LE:
 #ifdef DEBUG
-				printf("Cpu endianess set to little endian\n");
+			printf("Cpu endianess set to little endian\n");
 #endif
-				emulatedCpu.readByte   = readByteLE;
-				emulatedCpu.readHword  = readHwordLE;
-				emulatedCpu.readWord   = readWordLE;
-				emulatedCpu.readDword  = readDwordLE;
-				
-				emulatedCpu.writeByte  = writeByteLE;
-				emulatedCpu.writeHword = writeHwordLE;
-				emulatedCpu.writeWord  = writeWordLE;
-				emulatedCpu.writeDword = writeDwordLE;				
-			} break;
-		case 0x02:
-			{
+			emulatedCpu.readByte   = readByteLE;
+			emulatedCpu.readHword  = readHwordLE;
+			emulatedCpu.readWord   = readWordLE;
+			emulatedCpu.readDword  = readDwordLE;
+			
+			emulatedCpu.writeByte  = writeByteLE;
+			emulatedCpu.writeHword = writeHwordLE;
+			emulatedCpu.writeWord  = writeWordLE;
+			emulatedCpu.writeDword = writeDwordLE;				
+			break;
+		
+		case ENDIANNESS_BE:
 #ifdef DEBUG
-				printf("Cpu endianess set to big endian\n");
+			printf("Cpu endianess set to big endian\n");
 #endif				
-				emulatedCpu.readByte  = readByteBE;
-				emulatedCpu.readHword = readHwordBE;
-				emulatedCpu.readWord  = readWordBE;
-				emulatedCpu.readDword = readDwordBE;
-				
-				emulatedCpu.writeByte  = writeByteBE;
-				emulatedCpu.writeHword = writeHwordBE;
-				emulatedCpu.writeWord  = writeWordBE;
-				emulatedCpu.writeDword = writeDwordBE;					
-			} break;
+			emulatedCpu.readByte  = readByteBE;
+			emulatedCpu.readHword = readHwordBE;
+			emulatedCpu.readWord  = readWordBE;
+			emulatedCpu.readDword = readDwordBE;
+			
+			emulatedCpu.writeByte  = writeByteBE;
+			emulatedCpu.writeHword = writeHwordBE;
+			emulatedCpu.writeWord  = writeWordBE;
+			emulatedCpu.writeDword = writeDwordBE;					
+			break;
+		default:
+			printf("Error: Endian setting is neither BE nor LE.\n");
+			assert(0);
+			break;
 	}
 }
 
@@ -168,15 +163,14 @@ void generateException(int exception, mipsDasm *instruction)
 
 	emulatedCpu.cop0[14] = emulatedCpu.pc;
 	
-	if (instruction->delay)
-	{
+	if(instruction->delay) {
 		printf("Setting branch delay\n");
 		emulatedCpu.cop0[14] -= 4;
 		emulatedCpu.cop0[13] |= 0x80000000;
 	}
 	
 	printf("Jumping to the reset vector\n");
-	setPC(0xbfc00200 + 0x180);
+	setPC(0xBFC00200 + 0x180);
 }
 
 void executeOpcode(u32 opcode)
@@ -185,24 +179,21 @@ void executeOpcode(u32 opcode)
 	
 	dasmOpcode(opcode, &opc);
 
+#ifdef DEBUG
 	printf("Should use branch delay : %s\n", (opc->delay) ? "Yes" : "No");
-	
 	printf(">> %s\n", textOpcode(opc));
+#endif
 	
-	if (opc->delay && emulatedCpu.bOpcode == 0)
-	{
+	if(opc->delay && emulatedCpu.bOpcode == 0) {
 		emulatedCpu.bOpcode = getNextPC();
 		advancePC(DEFAULT_INSTRUCTION_PC);
 		return;
-	} else {
-		if (opc->delay)
-		{
+	}else{
+		if(opc->delay)
 			emulatedCpu.bOpcode = 0;
-		}
 	}
 	
-	if (emulatedCpu.bOpcode != 0)
-	{
+	if(emulatedCpu.bOpcode != 0) {
 		setPC(emulatedCpu.bOpcode);
 		return;
 	}

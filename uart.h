@@ -13,5 +13,6 @@
 
 int setupUart(u32 baseAddr);
 u8 readUartByte();
+void writeUartByte();
 
 #endif
