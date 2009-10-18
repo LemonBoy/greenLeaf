@@ -9,6 +9,9 @@
 
 #define DEFAULT_INSTRUCTION_PC	4
 
+#define REGISTER_HI 		32
+#define REGISTER_LO		33
+
 #define INSTRUCTION(opcode)	(opcode >> 26)
 #define FUNCT(opcode)		(opcode & 0x3F)
 

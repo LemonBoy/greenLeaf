@@ -5,13 +5,6 @@
 #include "emulator.h"
 #include "dasm.h"
 
-#define OUTCHAR(str, len, size, ch)                                          \
-do {                                                                         \
-	if (len + 1 < size)                                                  \
-		str[len] = ch;                                               \
-	(len)++;                                                             \
-} while (/* CONSTCOND */ 0)
-
 char *registerName[34] = {
 	"zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
 	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
@@ -98,6 +91,7 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 			case 0x3:
 			case 0x4:
 			case 0x5:
+			case 0x6:
 				dasm->delay = 1;
 				break;
 			default:
@@ -116,7 +110,9 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 		}
 	} else if (dasm->instruction == 1) {
 		switch (dasm->rt) {
+			case 0x0:
 			case 0x1:
+			case 0x7:
 				dasm->delay = 1;
 				break;
 			default:

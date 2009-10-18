@@ -90,7 +90,7 @@ void printRegisters()
 	for(reg = 0; reg < 32; reg++)
 		printf( "%s: 0x%08llx\tCOP0 %2d: 0x%08llx\n", \
 			registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
-	printf("HI: 0x%08llx\tLO:      0x%08llx\n", emulatedCpu.r[32], emulatedCpu.r[33]);
+	printf("HI: 0x%08llx\tLO:      0x%08llx\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
 	printf("PC: 0x%08x\tNext PC: 0x%08x\n", emulatedCpu.pc, emulatedCpu.nPc);
 }
 

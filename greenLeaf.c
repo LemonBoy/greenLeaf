@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
 	if(argc < 2) {	/* No arguments passed. */
 		filename = calloc(5, 1);
-		sprintf(filename, "mmon");
+		sprintf(filename, "test/mmon");
 	}else{
 		filename = calloc(strlen(argv[1]) + 1, 1);
 		sprintf(filename, argv[1]);

@@ -101,6 +101,45 @@ mipsInstruction BGEZ (mipsDasm *dasm)
 	}
 }
 
+/* Branch if greater than zero . */
+
+mipsInstruction BGTZ (mipsDasm *dasm)
+{
+	if (readRegister(dasm->rs) > 0)
+	{
+		advancePC(dasm->immediate << 2);
+	} else
+	{
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if less or equal than zero . */
+
+mipsInstruction BLEZ (mipsDasm *dasm)
+{
+	if (readRegister(dasm->rs) <= 0)
+	{
+		advancePC(dasm->immediate << 2);
+	} else
+	{
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
+/* Branch if less than zero . */
+
+mipsInstruction BLTZ (mipsDasm *dasm)
+{
+	if (readRegister(dasm->rs) < 0)
+	{
+		advancePC(dasm->immediate << 2);
+	} else
+	{
+		advancePC(DEFAULT_INSTRUCTION_PC);
+	}
+}
+
 /* Branch if not equal. */
 
 mipsInstruction BNE (mipsDasm *dasm)
@@ -118,8 +157,8 @@ mipsInstruction BNE (mipsDasm *dasm)
 
 mipsInstruction DIV (mipsDasm *dasm)
 {
-	setRegister(32, readRegister(dasm->rs) / readRegister(dasm->rt));
-	setRegister(33, readRegister(dasm->rs) % readRegister(dasm->rt));
+	setRegister(REGISTER_HI, readRegister(dasm->rs) / readRegister(dasm->rt));
+	setRegister(REGISTER_LO, readRegister(dasm->rs) % readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -127,8 +166,8 @@ mipsInstruction DIV (mipsDasm *dasm)
 
 mipsInstruction DIVU (mipsDasm *dasm)
 {
-	setRegister(32, (u64)(readRegister(dasm->rs)) / (u64)(readRegister(dasm->rt)));
-	setRegister(33, (u64)(readRegister(dasm->rs)) % (u64)(readRegister(dasm->rt)));
+	setRegister(REGISTER_HI, (u64)(readRegister(dasm->rs)) / (u64)(readRegister(dasm->rt)));
+	setRegister(REGISTER_LO, (u64)(readRegister(dasm->rs)) % (u64)(readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -158,6 +197,14 @@ mipsInstruction JALR (mipsDasm *dasm)
 mipsInstruction JR (mipsDasm *dasm)
 {
 	setPC(readRegister(dasm->rs));
+}
+
+/* Load byte. */
+
+mipsInstruction LB (mipsDasm *dasm)
+{
+	setRegister(dasm->rt, emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate));
+	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load byte unsigned. */
@@ -200,11 +247,45 @@ mipsInstruction MFC0 (mipsDasm *dasm)
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
+/* Move from HI. */
+
+mipsInstruction MFHI (mipsDasm *dasm)
+{
+	setRegister(dasm->rd, readRegister(REGISTER_HI));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Move from LO. */
+
+mipsInstruction MFLO (mipsDasm *dasm)
+{
+	setRegister(dasm->rd, readRegister(REGISTER_LO));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Multiply. */
+
+mipsInstruction MULT (mipsDasm *dasm)
+{
+	setRegister(33, readRegister(dasm->rs) * readRegister(dasm->rt));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Multiply unsigned. */
+
+mipsInstruction MULTU (mipsDasm *dasm)
+{
+	setRegister(33, (u64)(readRegister(dasm->rs)) * (u64)(readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
 /* No-operation. */
 
 mipsInstruction NOOP (mipsDasm *dasm)
 {
+#ifdef DEBUG
 	exit(-6);
+#endif
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -281,145 +362,145 @@ mipsInstruction SW (mipsDasm *dasm)
 /* General table with all opcodes. */
 
 mipsInstrTbl instructionTable[] = {
-	{NOOP, ""},
-	{NOOP, ""},
-	{J, "J %j"},
-	{JAL, "JAL %j"},
-	{BEQ, "BEQ %s, %t, %i"},
-	{BNE, "BNE %s, %t, %i"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{ADDI, "ADDI %t, %s, %i"},
-	{ADDIU, "ADDIU %t, %s, %i"},
-	{NOOP, ""}, // 10
-	{NOOP, ""},
-	{ANDI, "ANDI %t, %s, %i"},
-	{ORI, "ORI %t, %s, %i"},
-	{NOOP, ""},
-	{LUI, "LUI %t, %i"},
-	{MFC0, "MFC0 %t, %d"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, // 20
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, // 30	
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{LW, "LW %t, %i(%s)"},
-	{LBU, "LBU %t, %i(%s)"},
-	{LHU, "LHU %t, %i(%s)"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{SB, "SB %t, %i(%s)"}, // 40
-	{NOOP, ""},
-	{NOOP, ""},
-	{SW, "SW %t, %i(%s)"},
-	{NOOP, ""},
-	{NOOP, ""},	
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, // 50
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, // 60
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, "SD %t, %i(%s)"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""} // 70				
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{J	, "J %j"},
+	{JAL	, "JAL %j"},
+	{BEQ	, "BEQ %s, %t, %i"},
+	{BNE	, "BNE %s, %t, %i"},
+	{BLEZ	, "BLEZ %s, %i"},
+	{BGTZ	, "BGTZ %s, %i"},
+	{ADDI	, "ADDI %t, %s, %i"},
+	{ADDIU	, "ADDIU %t, %s, %i"},
+	{NOOP	, ""}, // 10
+	{NOOP	, ""},
+	{ANDI	, "ANDI %t, %s, %i"},
+	{ORI	, "ORI %t, %s, %i"},
+	{NOOP	, ""},
+	{LUI	, "LUI %t, %i"},
+	{MFC0	, "MFC0 %t, %d"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 20
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 30	
+	{NOOP	, ""},
+	{LB	, "LB %t, %i(%s)"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{LW	, "LW %t, %i(%s)"},
+	{LBU	, "LBU %t, %i(%s)"},
+	{LHU	, "LHU %t, %i(%s)"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{SB	, "SB %t, %i(%s)"}, // 40
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{SW	, "SW %t, %i(%s)"},
+	{NOOP	, ""},
+	{NOOP	, ""},	
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 50
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 60
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""} // 70				
 };
 
 /* Special opcodes.
  * The first six bits are 000000 and the instruction is encoded in the last six bits. */
 
 mipsInstrTbl specialInstructionTable[] = {
-	{SLL, "SLL %d, %t, %h"},
-	{NOOP, ""},
-	{SRL, "SRL %d, %t, %h"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{JR, "JR %s"},
-	{JALR, "JALR %s"}, 
-	{NOOP, ""}, // 10
+	{SLL	, "SLL %d, %t, %h"},
+	{NOOP	, ""},
+	{SRL	, "SRL %d, %t, %h"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{JR	, "JR %s"},
+	{JALR	, "JALR %s"}, 
+	{NOOP	, ""}, // 10
 	{SYSCALL, "SYSCALL"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, 
-	{NOOP, ""}, // 20
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},	
-	{DIV, "DIV %s, %t"},
-	{DIVU, "DIVU %s, %t"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}, // 30
-	{NOOP, ""},
-	{NOOP, ""},
-	{ADDU, "ADDU %d, %s, %t"},
-	{NOOP, ""},
-	{NOOP, ""},	
-	{AND, "AND %d, %s, %t"},
-	{OR, "OR %d, %s, %t"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""} // 40	
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{MFHI	, "MFHI %d"},
+	{NOOP	, ""},
+	{MFLO	, "MFLO %d"},
+	{NOOP	, ""}, 
+	{NOOP	, ""}, // 20
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{MULT	, "MULT %s, %t"},
+	{MULTU	, "MULTU %s, %t"},
+	{DIV	, "DIV %s, %t"},
+	{DIVU	, "DIVU %s, %t"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 30
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{ADDU	, "ADDU %d, %s, %t"},
+	{NOOP	, ""},
+	{NOOP	, ""},	
+	{AND	, "AND %d, %s, %t"},
+	{OR	, "OR %d, %s, %t"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""} // 40	
 };	
 
 /* Regimm opcodes.
  * The first six bits are 000001 and the instruction is encoded in the t register space. */
 
 mipsInstrTbl regimmInstructionTable[] = {
-	{NOOP, ""},
-	{BGEZ, "BGEZ %s, %i"},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""},
-	{NOOP, ""}
+	{BLTZ	, "BLTZ %s, %i"},
+	{BGEZ	, "BGEZ %s, %i"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{BGTZ	, "BGTZ %s, %i"},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}, // 10
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""},
+	{NOOP	, ""}
 };
 
 void execOpcode(mipsDasm *dasm)
