@@ -1,11 +1,13 @@
 OBJECTS = binary.o dasm.o emulator.o greenLeaf.o instructions.o memory.o uart.o
 OUTPUT = greenLeaf
 DEFINES = -DDEBUG
+CFLAGS = -Wall -O2
+LDFLAGS = 
 
 all: $(OUTPUT)
 %.o: %.c
-	gcc -Wall -O2 $(DEFINES) -c -o $@ $<
+	gcc $(CFLAGS) $(DEFINES) -c -o $@ $<
 $(OUTPUT): $(OBJECTS)
-	gcc -o $(OUTPUT) $(OBJECTS)
+	gcc $(LDFLAGS) -o $(OUTPUT) $(OBJECTS)
 clean:
 	rm -f $(OUTPUT) $(OBJECTS)

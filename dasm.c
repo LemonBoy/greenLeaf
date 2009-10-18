@@ -85,7 +85,7 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 	dasm->jump = JUMP(opcode);
 	dasm->funct = FUNCT(opcode);
 	
-	if (dasm->instruction != 0) {
+	if(dasm->instruction != 0) {
 		switch(dasm->instruction) {
 			case 0x2:
 			case 0x3:
@@ -98,7 +98,7 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 				dasm->delay = 0;
 				break;
 		}
-	} else if (dasm->instruction == 0) {
+	}else if(dasm->instruction == 0) {
 		switch(dasm->funct) {
 			case 0x8:
 			case 0x9:
@@ -108,8 +108,8 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 				dasm->delay = 0;
 				break;
 		}
-	} else if (dasm->instruction == 1) {
-		switch (dasm->rt) {
+	}else if(dasm->instruction == 1) {
+		switch(dasm->rt) {
 			case 0x0:
 			case 0x1:
 			case 0x7:

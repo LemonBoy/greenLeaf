@@ -11,8 +11,7 @@
 
 void cop0Handler(mipsDasm *dasm)
 {
-	switch (dasm->rs)
-	{
+	switch(dasm->rs) {
 		case 0x0:
 			setRegister(dasm->rt, readCop0Register(dasm->rd));
 			break;
@@ -27,135 +26,110 @@ void cop0Handler(mipsDasm *dasm)
  * All the opcode translations should go there.
  */
 
-/* Add with overflow. */
 
-mipsInstruction ADD (mipsDasm *dasm)
+#define MIPS_INSTRUCTION(name)	mipsInstruction name (mipsDasm *dasm)
+
+/* Add with overflow. */
+MIPS_INSTRUCTION( ADD )
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) + readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Add immediate. */
-
-mipsInstruction ADDI (mipsDasm *dasm)
+MIPS_INSTRUCTION( ADDI )
 {
 	setRegister(dasm->rt, readRegister(dasm->rs) + dasm->immediate);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Add immediate unsigned. */
-
-mipsInstruction ADDIU (mipsDasm *dasm)
+MIPS_INSTRUCTION( ADDIU )
 {
 	setRegister(dasm->rt, (u64)(readRegister(dasm->rs)) + (u64)(dasm->immediate));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* And. */
+/* Add unsigned. */
+MIPS_INSTRUCTION( ADDU )
+{
+	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) + (u64)(readRegister(dasm->rt)));
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
 
-mipsInstruction AND (mipsDasm *dasm)
+
+/* And. */
+MIPS_INSTRUCTION( AND )
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) & readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* And immediate. */
-
-mipsInstruction ANDI (mipsDasm *dasm)
+MIPS_INSTRUCTION( ANDI )
 {
 	setRegister(dasm->rt, readRegister(dasm->rs) & dasm->immediate);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Add unsigned. */
-
-mipsInstruction ADDU (mipsDasm *dasm)
-{
-	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) + (u64)(readRegister(dasm->rt)));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
 
 /* Branch if equal. */
-
-mipsInstruction BEQ (mipsDasm *dasm)
+MIPS_INSTRUCTION( BEQ )
 {
-	if (readRegister(dasm->rs) == readRegister(dasm->rt))
-	{
+	if(readRegister(dasm->rs) == readRegister(dasm->rt))
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
 /* Branch if greater or equal zero . */
-
-mipsInstruction BGEZ (mipsDasm *dasm)
+MIPS_INSTRUCTION( BGEZ )
 {
-	if (readRegister(dasm->rs) >= 0)
-	{
+	if(readRegister(dasm->rs) >= 0)
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
 /* Branch if greater than zero . */
-
-mipsInstruction BGTZ (mipsDasm *dasm)
+MIPS_INSTRUCTION( BGTZ )
 {
-	if (readRegister(dasm->rs) > 0)
-	{
+	if(readRegister(dasm->rs) > 0)
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
 /* Branch if less or equal than zero . */
-
-mipsInstruction BLEZ (mipsDasm *dasm)
+MIPS_INSTRUCTION( BLEZ )
 {
-	if (readRegister(dasm->rs) <= 0)
-	{
+	if(readRegister(dasm->rs) <= 0)
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
 /* Branch if less than zero . */
-
-mipsInstruction BLTZ (mipsDasm *dasm)
+MIPS_INSTRUCTION( BLTZ )
 {
-	if (readRegister(dasm->rs) < 0)
-	{
+	if(readRegister(dasm->rs) < 0)
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
 /* Branch if not equal. */
-
-mipsInstruction BNE (mipsDasm *dasm)
+MIPS_INSTRUCTION( BNE )
 {
-	if (readRegister(dasm->rs) != readRegister(dasm->rt))
-	{
+	if(readRegister(dasm->rs) != readRegister(dasm->rt))
 		advancePC(dasm->immediate << 2);
-	} else
-	{
+	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
-	}
 }
 
-/* Divide. */
 
-mipsInstruction DIV (mipsDasm *dasm)
+/* Divide. */
+MIPS_INSTRUCTION( DIV )
 {
 	setRegister(REGISTER_HI, readRegister(dasm->rs) / readRegister(dasm->rt));
 	setRegister(REGISTER_LO, readRegister(dasm->rs) % readRegister(dasm->rt));
@@ -163,8 +137,7 @@ mipsInstruction DIV (mipsDasm *dasm)
 }
 
 /* Divide unsigned. */
-
-mipsInstruction DIVU (mipsDasm *dasm)
+MIPS_INSTRUCTION( DIVU )
 {
 	setRegister(REGISTER_HI, (u64)(readRegister(dasm->rs)) / (u64)(readRegister(dasm->rt)));
 	setRegister(REGISTER_LO, (u64)(readRegister(dasm->rs)) % (u64)(readRegister(dasm->rt)));
@@ -172,116 +145,103 @@ mipsInstruction DIVU (mipsDasm *dasm)
 }
 
 /* Jump. */
-
-mipsInstruction J (mipsDasm *dasm)
+MIPS_INSTRUCTION( J )
 {
 	setJump(dasm->jump, 0);
 }
 
 /* Jump and link. */
-
-mipsInstruction JAL (mipsDasm *dasm)
+MIPS_INSTRUCTION( JAL )
 {
 	setJump(dasm->jump, 1);
 }
 
 /* Jump and link register. */
-
-mipsInstruction JALR (mipsDasm *dasm)
+MIPS_INSTRUCTION( JALR )
 {
 	setJump(readRegister(dasm->rs), 1);
 }
 
 /* Jump register. */
-
-mipsInstruction JR (mipsDasm *dasm)
+MIPS_INSTRUCTION( JR )
 {
 	setPC(readRegister(dasm->rs));
 }
 
 /* Load byte. */
-
-mipsInstruction LB (mipsDasm *dasm)
+MIPS_INSTRUCTION( LB )
 {
 	setRegister(dasm->rt, emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load byte unsigned. */
-
-mipsInstruction LBU (mipsDasm *dasm)
+MIPS_INSTRUCTION( LBU )
 {
 	setRegister(dasm->rt, (u8)(emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load halfword unsigned. */
-
-mipsInstruction LHU (mipsDasm *dasm)
+MIPS_INSTRUCTION( LHU )
 {
 	setRegister(dasm->rt, (u64)(emulatedCpu.readHword((u64)(readRegister(dasm->rs)) + (u64)(dasm->immediate))));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load upper immediate. */
-
-mipsInstruction LUI (mipsDasm *dasm)
+MIPS_INSTRUCTION( LUI )
 {
 	setRegister(dasm->rt, dasm->immediate << 16);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load word. */
-
-mipsInstruction LW (mipsDasm *dasm)
+MIPS_INSTRUCTION( LW )
 {
 	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Move from coprocessor 0. */
-
-mipsInstruction MFC0 (mipsDasm *dasm)
+MIPS_INSTRUCTION( MFC0 )
 {
 	cop0Handler(dasm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Move from HI. */
-
-mipsInstruction MFHI (mipsDasm *dasm)
+MIPS_INSTRUCTION( MFHI )
 {
 	setRegister(dasm->rd, readRegister(REGISTER_HI));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Move from LO. */
-
-mipsInstruction MFLO (mipsDasm *dasm)
+MIPS_INSTRUCTION( MFLO )
 {
 	setRegister(dasm->rd, readRegister(REGISTER_LO));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Multiply. */
 
-mipsInstruction MULT (mipsDasm *dasm)
+/* Multiply. */
+MIPS_INSTRUCTION( MULT )
 {
 	setRegister(33, readRegister(dasm->rs) * readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Multiply unsigned. */
-
-mipsInstruction MULTU (mipsDasm *dasm)
+MIPS_INSTRUCTION( MULTU )
 {
 	setRegister(33, (u64)(readRegister(dasm->rs)) * (u64)(readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* No-operation. */
 
-mipsInstruction NOOP (mipsDasm *dasm)
+/* No-operation. */
+MIPS_INSTRUCTION( NOOP )
 {
 #ifdef DEBUG
 	exit(-6);
@@ -289,71 +249,61 @@ mipsInstruction NOOP (mipsDasm *dasm)
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Or. */
 
-mipsInstruction OR (mipsDasm *dasm)
+/* Or. */
+MIPS_INSTRUCTION( OR )
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) | readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Or immediate. */
-
-mipsInstruction ORI (mipsDasm *dasm)
+MIPS_INSTRUCTION( ORI )
 {
 	setRegister(dasm->rt, readRegister(dasm->rs) | dasm->immediate);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Store byte. */
-
-mipsInstruction SB (mipsDasm *dasm)
+MIPS_INSTRUCTION( SB )
 {
 	emulatedCpu.writeByte(readRegister(dasm->rs) + (dasm->immediate & 0xFF), readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift left logical. */
-
-mipsInstruction SLL (mipsDasm *dasm)
+MIPS_INSTRUCTION( SLL )
 {
 	setRegister(dasm->rd, readRegister(dasm->rt) << dasm->shift);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift right logical. */
-
-mipsInstruction SRL (mipsDasm *dasm)
+MIPS_INSTRUCTION( SRL )
 {
 	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Set if less than immediate unsigned. */
-
-mipsInstruction SLTIU (mipsDasm *dasm)
+MIPS_INSTRUCTION( SLTIU )
 {
-	if ((mipsRegister)readRegister(dasm->rs) < (mipsRegister)dasm->immediate)
-	{
+	if((mipsRegister)readRegister(dasm->rs) < (mipsRegister)dasm->immediate)
 		setRegister(dasm->rt, 1);
-	} else
-	{
+	else
 		setRegister(dasm->rt, 0);
-	}
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Syscall. */
-
-mipsInstruction SYSCALL (mipsDasm *dasm)
+MIPS_INSTRUCTION( SYSCALL )
 {
 	generateException(8, dasm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }	
 
 /* Store word. */
-
-mipsInstruction SW (mipsDasm *dasm)
+MIPS_INSTRUCTION( SW )
 {
 	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
@@ -506,25 +456,23 @@ mipsInstrTbl regimmInstructionTable[] = {
 void execOpcode(mipsDasm *dasm)
 {
 #ifdef DEBUG		
-	printf("Instruction %#x Function %#x\n", dasm->instruction, dasm->funct);
+	printf("Instruction 0x%08X Function 0x%08X\n", dasm->instruction, dasm->funct);
 #endif
-	if (dasm->instruction != 0) {
+	if(dasm->instruction != 0)
 		instructionTable[dasm->instruction].execute(dasm);
-	} else if (dasm->instruction == 0) {
+	else if(dasm->instruction == 0)
 		specialInstructionTable[dasm->funct].execute(dasm);
-	} else if (dasm->instruction == 1) {
+	else if(dasm->instruction == 1)
 		regimmInstructionTable[dasm->rt].execute(dasm);
-	}
 }
 
 char* textOpcode(mipsDasm *dasm)
 {
-	if (dasm->instruction != 0) {
+	if(dasm->instruction != 0)
 		return dasmFormat(instructionTable[dasm->instruction].textDisasm, dasm);
-	} else if (dasm->instruction == 0) {
+	else if(dasm->instruction == 0)
 		return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
-	} else if (dasm->instruction == 1) {
+	else if(dasm->instruction == 1)
 		return dasmFormat(regimmInstructionTable[dasm->rt].textDisasm, dasm);
-	}
 	return "Not implemented";
 }

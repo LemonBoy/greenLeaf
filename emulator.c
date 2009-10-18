@@ -12,7 +12,7 @@
 void setRegister(mipsRegister reg, u32 value)
 {
 #ifdef DEBUG
-	printf("Write %#x in %s\n", value, registerToName(reg));
+	printf("Write 0x%08X in %s\n", value, registerToName(reg));
 #endif
 	/* Keep r0 hardwired to 0 */
 	if(reg == 0)
@@ -31,7 +31,7 @@ mipsRegister readRegister(mipsRegister reg)
 void setCop0Register(mipsRegister reg, u32 value)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Write %#x in %i\n", value, reg);
+	printf("Cop0 -> Write 0x%08X in %llu\n", value, reg);
 #endif
 	emulatedCpu.cop0[reg] = value;
 }
@@ -39,7 +39,7 @@ void setCop0Register(mipsRegister reg, u32 value)
 mipsRegister readCop0Register(mipsRegister reg)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Read %i\n", reg);
+	printf("Cop0 -> Read %llu\n", reg);
 #endif	
 	return emulatedCpu.cop0[reg];
 }
@@ -49,7 +49,7 @@ void advancePC(mipsRegister nextPC)
 	emulatedCpu.pc = emulatedCpu.nPc;
 	emulatedCpu.nPc += nextPC;
 #ifdef DEBUG	
-	printf("Advance -> Next pc is %#x\n", emulatedCpu.nPc);
+	printf("Advance -> Next pc is 0x%08X\n", emulatedCpu.nPc);
 #endif
 }
 
@@ -60,7 +60,7 @@ void setJump(mipsJumpAddress jumpAddress, int link)
 		setRegister(31, emulatedCpu.pc + DEFAULT_INSTRUCTION_PC);
 	emulatedCpu.nPc = (emulatedCpu.pc & 0xf0000000) | (jumpAddress << 2);
 #ifdef DEBUG	
-	printf("Jump -> Next pc is %#x\n", emulatedCpu.nPc);
+	printf("Jump -> Next pc is 0x%08X\n", emulatedCpu.nPc);
 #endif
 }
 
@@ -69,7 +69,7 @@ void setPC(mipsRegister nextPC)
 	emulatedCpu.pc = emulatedCpu.nPc;
 	emulatedCpu.nPc = nextPC;
 #ifdef DEBUG	
-	printf("Set -> Next pc is %#x\n", emulatedCpu.nPc);
+	printf("Set -> Next pc is 0x%08X\n", emulatedCpu.nPc);
 #endif
 }
 
@@ -88,10 +88,10 @@ void printRegisters()
 	int reg;
 	
 	for(reg = 0; reg < 32; reg++)
-		printf( "%s: 0x%08llx\tCOP0 %2d: 0x%08llx\n", \
+		printf( "%s: 0x%08llX\tCOP0 %2d: 0x%08llX\n", \
 			registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
-	printf("HI: 0x%08llx\tLO:      0x%08llx\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
-	printf("PC: 0x%08x\tNext PC: 0x%08x\n", emulatedCpu.pc, emulatedCpu.nPc);
+	printf("HI: 0x%08llX\tLO:      0x%08llX\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
+	printf("PC: 0x%08X\tNext PC: 0x%08X\n", emulatedCpu.pc, emulatedCpu.nPc);
 }
 
 /* 
@@ -117,7 +117,7 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	
 	emulatedCpu.endian = endian;
 	
-	switch (emulatedCpu.endian) {
+	switch(emulatedCpu.endian) {
 		case ENDIANNESS_LE:
 #ifdef DEBUG
 			printf("Cpu endianess set to little endian\n");
@@ -149,14 +149,14 @@ void initializeCPU(u8 endian, u32 stackPtr)
 			break;
 		default:
 			printf("Error: Endian setting is neither BE nor LE.\n");
-			assert(0);
+			assert((emulatedCpu.endian == ENDIANNESS_BE) || (emulatedCpu.endian == ENDIANNESS_LE));
 			break;
 	}
 }
 
 void generateException(int exception, mipsDasm *instruction)
 {
-	printf("Caught exception %#x\n", exception);
+	printf("Caught exception 0x%08X\n", exception);
 
 	emulatedCpu.cop0[13] = (instruction->delay) ? (emulatedCpu.cop0[13] << 31) | 1 : 0;
 	emulatedCpu.cop0[13] = (emulatedCpu.cop0[13] & 0xFFFFFF00) | exception << 2;

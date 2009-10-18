@@ -41,6 +41,7 @@ u8 readUartByte()
 
 void writeUartByte()
 {
+	/* This function needs work! It's not correct! */
 	if(uartAddress == 0) {
 #ifdef DEBUG
 		printf("Uart not initialized\n");
