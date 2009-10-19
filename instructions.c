@@ -66,7 +66,7 @@ MIPS_INSTRUCTION( ADDIU )
 }
 
 /* Subtract with overflow. */
-MIPS_INSTRUCTION( SUB )
+MIPS_INSTRUCTION( SUB )git@github.com:LemonBoy/greenLeaf.git
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) - readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
@@ -707,8 +707,8 @@ mipsInstrTbl instructionTable[] = {
 	{BGTZ	, "BGTZ %s, %i"},
 	{ADDI	, "ADDI %t, %s, %i"},
 	{ADDIU	, "ADDIU %t, %s, %i"},
-	{NOOP	, ""}, // 10
-	{NOOP	, ""},
+	{SLTI	, "SLTI %t, %s, %i"}, // 10
+	{SLTIU	, "SLTIU %t, %s, %i"},
 	{ANDI	, "ANDI %t, %s, %i"},
 	{ORI	, "ORI %t, %s, %i"},
 	{NOOP	, ""},
@@ -777,10 +777,10 @@ mipsInstrTbl specialInstructionTable[] = {
 	{SLL	, "SLL %d, %t, %h"},
 	{NOOP	, ""},
 	{SRL	, "SRL %d, %t, %h"},
+	{SRA	, "SRA %d, %t, %h"},
+	{SLLV	, "SLLV %d, %t, %s"},
 	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
+	{SRLV	, "SLRLV %d, %t, %s"},
 	{NOOP	, ""},
 	{JR	, "JR %s"},
 	{JALR	, "JALR %s"}, 
@@ -808,13 +808,17 @@ mipsInstrTbl specialInstructionTable[] = {
 	{NOOP	, ""},
 	{NOOP	, ""},
 	{ADDU	, "ADDU %d, %s, %t"},
-	{NOOP	, ""},
-	{NOOP	, ""},	
+	{SUB	, "SUB %d, %s, %t"},
+	{SUBU	, "SUBU %d, %s, %t"},	
 	{AND	, "AND %d, %s, %t"},
 	{OR	, "OR %d, %s, %t"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""} // 40	
+	{XOR	, "XOR %d, %s, %t"},
+	{NOR	, "NOR %d, %s, %t"},
+	{NOOP	, ""}, // 40	
+       	{NOOP	, ""},
+        {SLT	, "SLT %d, %s, %t"},
+        {SLTU	, "SLTU %t, %s, %i"}	
+
 };	
 
 /* Regimm opcodes.
