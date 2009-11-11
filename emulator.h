@@ -66,7 +66,8 @@ mipsRegister readRegister(mipsRegister reg);
 mipsRegister readCop0Register(mipsRegister reg);
 void advancePC(mipsRegister nextPC);
 void setPC(mipsRegister nextPC);
-void setJump(mipsJumpAddress jumpAddress, int link);
+void setJump(mipsJumpAddress jumpAddress);
+void doLink(int r, int reg);
 void generateException(int exception, mipsDasm *instruction);
 
 #endif

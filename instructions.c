@@ -66,7 +66,7 @@ MIPS_INSTRUCTION( ADDIU )
 }
 
 /* Subtract with overflow. */
-MIPS_INSTRUCTION( SUB )git@github.com:LemonBoy/greenLeaf.git
+MIPS_INSTRUCTION( SUB )
 {
 	setRegister(dasm->rd, readRegister(dasm->rs) - readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
@@ -209,7 +209,7 @@ MIPS_INSTRUCTION( SLL )
 /* Shift left logical variable. */
 MIPS_INSTRUCTION( SLLV )
 {
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) << readRegister(dasm->rs), readRegister(dasm->rt)));
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) << readRegister(dasm->rs), readRegister(dasm->rt), 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -223,7 +223,7 @@ MIPS_INSTRUCTION( SRL )
 /* Shift right logical variable. */
 MIPS_INSTRUCTION( SRLV )
 {
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt)));
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt), 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -239,7 +239,7 @@ MIPS_INSTRUCTION( SRA )
 MIPS_INSTRUCTION( SRAV )
 {
 	/* TODO: Sign Extend */
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt)));
+	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt), 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -491,9 +491,10 @@ MIPS_INSTRUCTION( LW )
 MIPS_INSTRUCTION( LWL )
 {
 	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	for(i = 0; i < (vAddr % 4); i++) {
-		final |= emulatedCpu.readByte(vAddr + i) << 31 - (i * 4);
+		final |= emulatedCpu.readByte(vAddr + i) << (31 - (i * 4));
 	}
 	setRegister(dasm->rt, final);
 	advancePC(DEFAULT_INSTRUCTION_PC);
@@ -503,6 +504,7 @@ MIPS_INSTRUCTION( LWL )
 MIPS_INSTRUCTION( LWR )
 {
 	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	for(i = 0; i < (vAddr % 4); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (i * 4);
@@ -536,9 +538,10 @@ MIPS_INSTRUCTION( LDU )
 MIPS_INSTRUCTION( LDL )
 {
 	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	for(i = 0; i < (vAddr % 8); i++) {
-		final |= emulatedCpu.readByte(vAddr + i) << 64 - ((i + 1) * 8);
+		final |= emulatedCpu.readByte(vAddr + i) << (64 - ((i + 1) * 8));
 	}
 	setRegister(dasm->rt, final);
 	advancePC(DEFAULT_INSTRUCTION_PC);
@@ -548,6 +551,7 @@ MIPS_INSTRUCTION( LDL )
 MIPS_INSTRUCTION( LDR )
 {
 	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	for(i = 0; i < (vAddr % 8); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (i * 8);
@@ -586,21 +590,21 @@ MIPS_INSTRUCTION( SB )
 /* Store word. */
 MIPS_INSTRUCTION( SH )
 {
-	emulatedCpu.writeHword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 32) - 1));
+	emulatedCpu.writeHword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1LL << 32) - 1));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 			      
 /* Store word. */
 MIPS_INSTRUCTION( SW )
 {
-	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 32) - 1));
+	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1LL << 32) - 1));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Store word left. */
 MIPS_INSTRUCTION( SWL )
 {
-	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 4); i < 4; i++)
@@ -611,7 +615,7 @@ MIPS_INSTRUCTION( SWL )
 /* Store word right. */
 MIPS_INSTRUCTION( SWR )
 {
-	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 4); i < 4; i++)
@@ -622,14 +626,14 @@ MIPS_INSTRUCTION( SWR )
 /* Store doubleword. */
 MIPS_INSTRUCTION( SD )
 {
-	emulatedCpu.writeDword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 64) - 1));
+	emulatedCpu.writeDword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Store doubleword left. */
 MIPS_INSTRUCTION( SDL )
 {
-	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 8); i < 8; i++)
@@ -640,7 +644,7 @@ MIPS_INSTRUCTION( SDL )
 /* Store doubleword right. */
 MIPS_INSTRUCTION( SDR )
 {
-	s64 final = 0;
+	int i;
 	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 8); i < 8; i++)
