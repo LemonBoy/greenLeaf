@@ -27,8 +27,8 @@ int mapMemory(u32 start, u32 size, u8 flags)
 	}
 	
 #ifdef DEBUG
-	printf( "Mapped bank from %#x to %#x wich points to %p\n", \
-		newMappedMem->addrStart, newMappedMem->addrEnd, newMappedMem->memory);
+	printf("Mapped bank from 0x%08X to 0x%08X which points to 0x%08X\n", \
+		newMappedMem->addrStart, newMappedMem->addrEnd, (u32)newMappedMem->memory);
 #endif		
 	
 	newMappedMem->next = NULL;
@@ -63,7 +63,9 @@ mipsMappedMemory *getBank(u32 address, u32 size, int access)
 {
 	mipsMappedMemory *ptr = rootBank;
 #ifdef DEBUG
-	printf("Searching bank for address %#x\n", address);
+#ifdef HYPERDEBUG
+	printf("Searching bank for address 0x%08X\n", address);
+#endif
 #endif	
 	while(ptr != NULL) {
 		if(address >= ptr->addrStart) {
@@ -273,15 +275,15 @@ void writeDwordBE(u32 address, u64 value)
 void memcopy(void *src, u32 address, int size)
 {
 	int x;
-	
-	for (x = 0; x < size; x++)
-		writeByte(address + x, *(u8*)(src + x));
+	u8* s = src;
+	for (x = 0; x < size; x++, s++)
+		writeByte(address + x, *s);
 }
 
 void memoryset(u32 address, u8 fill, int size)
 {
 	int x;
 	
-	for (x = 0; x < size; x++)
-		writeByte(address + x, fill);
+	for (x = 0; x < size; x++, address++)
+		writeByte(address, fill);
 }

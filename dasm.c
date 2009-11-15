@@ -4,6 +4,7 @@
 #include "types.h"
 #include "emulator.h"
 #include "dasm.h"
+#include "instructions.h"
 
 char *registerName[34] = {
 	"zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
@@ -34,30 +35,30 @@ char* dasmFormat(char *haystack, mipsDasm *dasm)
 			switch(*hptr) {
 				case 't':
 					strcpy(&(*fptr), registerToName(dasm->rt));
-					len += strlen(registerToName(dasm->rt)) - 1;
+					len = strlen(registerToName(dasm->rt));
 					break;
 				case 's':
 					strcpy(&(*fptr), registerToName(dasm->rs));
-					len += strlen(registerToName(dasm->rs)) - 1;
+					len = strlen(registerToName(dasm->rs));
 					break;
 				case 'd':
 					strcpy(&(*fptr), registerToName(dasm->rd));
-					len += strlen(registerToName(dasm->rd)) - 1;
+					len = strlen(registerToName(dasm->rd));
 					break;										
 				case 'i':
 					sprintf(fmtBuf, "%#x", dasm->immediate);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf) - 1;
+					len = strlen(fmtBuf);
 					break;
 				case 'j':
 					sprintf(fmtBuf, "%#x", dasm->jump);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf) - 1;
+					len = strlen(fmtBuf);
 					break;
 				case 'h':
 					sprintf(fmtBuf, "%#x", dasm->shift);
 					strcpy(&(*fptr), fmtBuf);
-					len += strlen(fmtBuf) - 1;
+					len = strlen(fmtBuf);
 					break;
 			}
 		}else{
@@ -85,41 +86,34 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 	dasm->jump = JUMP(opcode);
 	dasm->funct = FUNCT(opcode);
 	
-	if(dasm->instruction != 0) {
-		switch(dasm->instruction) {
-			case 0x2:
-			case 0x3:
-			case 0x4:
-			case 0x5:
-			case 0x6:
-				dasm->delay = 1;
-				break;
-			default:
-				dasm->delay = 0;
-				break;
-		}
-	}else if(dasm->instruction == 0) {
-		switch(dasm->funct) {
-			case 0x8:
-			case 0x9:
-				dasm->delay = 1;
-				break;
-			default:
-				dasm->delay = 0;
-				break;
+	if(dasm->instruction == 0) {
+		if(dasm->funct <= SPECIAL_INST_COUNT) {
+			dasm->delay = specialInstructionTable[dasm->funct].delay;
+		}else{
+#ifdef DEBUG
+			printf("Function is too high!\n");
+#endif
+			dasm->delay = 0;
 		}
 	}else if(dasm->instruction == 1) {
-		switch(dasm->rt) {
-			case 0x0:
-			case 0x1:
-			case 0x7:
-				dasm->delay = 1;
-				break;
-			default:
-				dasm->delay = 0;
-				break;
+		if(dasm->rt <= REGIMM_INST_COUNT) {
+			dasm->delay = regimmInstructionTable[dasm->rt].delay;
+		}else{
+#ifdef DEBUG
+			printf("rt is too high!\n");
+#endif
+			dasm->delay = 0;
 		}
-	}
-
+	}else{
+		if(dasm->instruction <= NORMAL_INST_COUNT) {
+			dasm->delay = instructionTable[dasm->instruction].delay;
+		}else{
+#ifdef DEBUG
+			printf("Instruction is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
+	}	
+	
 	*ret = dasm;
 }	

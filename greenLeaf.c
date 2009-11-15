@@ -23,12 +23,12 @@ void __hexdump(void *d, int len)
 	int i, off;
 	data = (u8*)d;
 	for(off = 0; off < len; off += 16) {
-		printf("%08x ", off);
+		printf("%08X ", off);
 		for(i = 0; i < 16; i++) {
 			if((i + off) >= len)
 				printf("   ");
 			else
-				printf("%02x ", data[off + i]);
+				printf("%02X ", data[off + i]);
 		}
 		printf(" | ");
 		for(i = 0; i < 16; i++) {
@@ -48,8 +48,7 @@ int main(int argc, char *argv[])
 	s32 ret;
 	
 	printf("greenLeaf 0.1\n");
-	printf("mips emulator by The Lemon Man\n");
-	printf("Patches by SquidMan\n");
+	printf("mips emulator by The Lemon Man and SquidMan\n");
 
 	if(argc < 2) {	/* No arguments passed. */
 		filename = calloc(5, 1);
@@ -82,6 +81,7 @@ int main(int argc, char *argv[])
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {
+		fgetc(stdin);
 		if(emulatedCpu.endian == ENDIANNESS_LE) {
 			opcode = (u8)(emulatedCpu.readByte(getNextPC() + 3)) << 24 | 
 				 (u8)(emulatedCpu.readByte(getNextPC() + 2)) << 16 | 
@@ -98,7 +98,6 @@ int main(int argc, char *argv[])
 		executeOpcode(opcode);
 		printf("Uart character %c\n", readUartByte());
 		printRegisters();
-		fgetc(stdin);
 	}
 	
 	printf("Execution finished... unmapping the ram\n");

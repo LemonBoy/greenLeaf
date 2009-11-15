@@ -3,6 +3,7 @@
 #include "types.h"
 #include "emulator.h"
 #include "dasm.h"
+#include "instructions.h"
 
 /* README:
  * All the branch instruction follows the one-instruction-delay-slot rule
@@ -31,8 +32,9 @@ static mipsRegister _signextend(mipsRegister input, mipsRegister sign, int size)
  * All the opcode translations should go there.
  */
 
-
-#define MIPS_INSTRUCTION(name)	mipsInstruction name (mipsDasm *dasm)
+#define MIPS_INSTR_NAME(name)		mips_##name
+#define MIPS_INSTRUCTION(name)		static mipsInstruction MIPS_INSTR_NAME( name ) (mipsDasm *dasm)
+#define INST_ENTRY(name, args, delay)	{ MIPS_INSTR_NAME( name ), #name args } 
 
 /*****************************************************************************/
 /*  Arithmetic instructions                                                  */
@@ -527,13 +529,6 @@ MIPS_INSTRUCTION( LD )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-/* Load doubleword unsigned. */
-MIPS_INSTRUCTION( LDU )
-{
-	setRegister(dasm->rt, emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate));
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
 /* Load doubleword left. */
 MIPS_INSTRUCTION( LDL )
 {
@@ -701,171 +696,216 @@ MIPS_INSTRUCTION( SYSCALL )
 /*****************************************************************************/
 /* General table with all opcodes. */
 mipsInstrTbl instructionTable[] = {
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{J	, "J %j"},
-	{JAL	, "JAL %j"},
-	{BEQ	, "BEQ %s, %t, %i"},
-	{BNE	, "BNE %s, %t, %i"},
-	{BLEZ	, "BLEZ %s, %i"},
-	{BGTZ	, "BGTZ %s, %i"},
-	{ADDI	, "ADDI %t, %s, %i"},
-	{ADDIU	, "ADDIU %t, %s, %i"},
-	{SLTI	, "SLTI %t, %s, %i"}, // 10
-	{SLTIU	, "SLTIU %t, %s, %i"},
-	{ANDI	, "ANDI %t, %s, %i"},
-	{ORI	, "ORI %t, %s, %i"},
-	{NOOP	, ""},
-	{LUI	, "LUI %t, %i"},
-	{MFC0	, "MFC0 %t, %d"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 20
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 30	
-	{NOOP	, ""},
-	{LB	, "LB %t, %i(%s)"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{LW	, "LW %t, %i(%s)"},
-	{LBU	, "LBU %t, %i(%s)"},
-	{LHU	, "LHU %t, %i(%s)"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{SB	, "SB %t, %i(%s)"}, // 40
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{SW	, "SW %t, %i(%s)"},
-	{NOOP	, ""},
-	{NOOP	, ""},	
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 50
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 60
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""} // 70				
+/*00*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*01*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*02*/	INST_ENTRY( J,		" %j",		1 ),
+/*03*/	INST_ENTRY( JAL,	" %j",		1 ),
+/*04*/	INST_ENTRY( BEQ,	" %s, %t, %i",	1 ),
+/*05*/	INST_ENTRY( BNE,	" %s, %t, %i",	1 ),
+/*06*/	INST_ENTRY( BLEZ,	" %s, %i",	1 ),
+/*07*/	INST_ENTRY( BGTZ,	" %s, %i",	0 ),
+/*08*/	INST_ENTRY( ADDI,	" %t, %s, %i",	0 ),
+/*09*/	INST_ENTRY( ADDIU,	" %t, %s, %i",	0 ),
+/*0A*/	INST_ENTRY( SLTI,	" %t, %s, %i",	0 ),
+/*0B*/	INST_ENTRY( SLTIU,	" %t, %s, %i",	0 ),
+/*0C*/	INST_ENTRY( ANDI,	" %t, %s, %i",	0 ),
+/*0D*/	INST_ENTRY( ORI,	" %t, %s, %i",	0 ),
+/*0E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0F*/	INST_ENTRY( LUI,	" %t, %i",	0 ),
+/*10*/	INST_ENTRY( MFC0,	" %t, %d",	0 ),
+/*11*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*12*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*13*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*14*/	INST_ENTRY( BEQL,	" %s, %t, %i",	1 ), 
+/*15*/	INST_ENTRY( BNEL,	" %s, %t, %i",	1 ), 
+/*16*/	INST_ENTRY( BLEZL,	" %s, %i",	1 ), 
+/*17*/	INST_ENTRY( BGTZL,	" %s, %i",	1 ), 
+/*18*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*19*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1A*/	INST_ENTRY( LDL,	" %t, %i(%s)",	0 ),
+/*1B*/	INST_ENTRY( LDR,	" %t, %i(%s)",	0 ),
+/*1C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*20*/	INST_ENTRY( LB,		" %t, %i(%s)",	0 ),
+/*21*/	INST_ENTRY( LH,		" %t, %i(%s)",	0 ),
+/*22*/	INST_ENTRY( LWL,	" %t, %i(%s)",	0 ),
+/*23*/	INST_ENTRY( LW,		" %t, %i(%s)",	0 ),
+/*24*/	INST_ENTRY( LBU,	" %t, %i(%s)",	0 ),
+/*25*/	INST_ENTRY( LHU,	" %t, %i(%s)",	0 ),
+/*26*/	INST_ENTRY( LWR,	" %t, %i(%s)",	0 ),
+/*27*/	INST_ENTRY( LWU,	" %t, %i(%s)",	0 ),
+/*28*/	INST_ENTRY( SB,		" %t, %i(%s)",	0 ),
+/*29*/	INST_ENTRY( SH,		" %t, %i(%s)",	0 ),
+/*2A*/	INST_ENTRY( SWL,	" %t, %i(%s)",	0 ),
+/*2B*/	INST_ENTRY( SW,		" %t, %i(%s)",	0 ),
+/*2C*/	INST_ENTRY( SDL,	" %t, %i(%s)",	0 ),
+/*2D*/	INST_ENTRY( SDR,	" %t, %i(%s)",	0 ),
+/*2E*/	INST_ENTRY( SWR,	" %t, %i(%s)",	0 ),
+/*2F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*30*/	INST_ENTRY( LL,		" %t, %i(%s)",	0 ),
+/*31*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*32*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*33*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*34*/	INST_ENTRY( LLD,	" %t, %i(%s)",	0 ),
+/*35*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*36*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*37*/	INST_ENTRY( LD,		" %t, %i(%s)",	0 ),
+/*38*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*39*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3A*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3B*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*30*/	INST_ENTRY( SD,		" %t, %i(%s)",	0 ),
+/*40*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*41*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*42*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*43*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*44*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*45*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*46*/	INST_ENTRY( NOOP,	"",		0 )			/* NOOP */
 };
 
 /* Special opcodes.
  * The first six bits are 000000 and the instruction is encoded in the last six bits. */
 
 mipsInstrTbl specialInstructionTable[] = {
-	{SLL	, "SLL %d, %t, %h"},
-	{NOOP	, ""},
-	{SRL	, "SRL %d, %t, %h"},
-	{SRA	, "SRA %d, %t, %h"},
-	{SLLV	, "SLLV %d, %t, %s"},
-	{NOOP	, ""},
-	{SRLV	, "SLRLV %d, %t, %s"},
-	{NOOP	, ""},
-	{JR	, "JR %s"},
-	{JALR	, "JALR %s"}, 
-	{NOOP	, ""}, // 10
-	{SYSCALL, "SYSCALL"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{MFHI	, "MFHI %d"},
-	{NOOP	, ""},
-	{MFLO	, "MFLO %d"},
-	{NOOP	, ""}, 
-	{NOOP	, ""}, // 20
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{MULT	, "MULT %s, %t"},
-	{MULTU	, "MULTU %s, %t"},
-	{DIV	, "DIV %s, %t"},
-	{DIVU	, "DIVU %s, %t"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 30
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{ADDU	, "ADDU %d, %s, %t"},
-	{SUB	, "SUB %d, %s, %t"},
-	{SUBU	, "SUBU %d, %s, %t"},	
-	{AND	, "AND %d, %s, %t"},
-	{OR	, "OR %d, %s, %t"},
-	{XOR	, "XOR %d, %s, %t"},
-	{NOR	, "NOR %d, %s, %t"},
-	{NOOP	, ""}, // 40	
-       	{NOOP	, ""},
-        {SLT	, "SLT %d, %s, %t"},
-        {SLTU	, "SLTU %t, %s, %i"}	
-
+/*00*/	INST_ENTRY( SLL,	" %d, %t, %h",	0 ), 
+/*01*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*02*/	INST_ENTRY( SRL,	" %d, %t, %h",	0 ), 
+/*03*/	INST_ENTRY( SRA,	" %d, %t, %h",	0 ), 
+/*04*/	INST_ENTRY( SLLV,	" %d, %t, %s",	0 ), 
+/*05*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*06*/	INST_ENTRY( SRLV,	" %d, %t, %s",	0 ), 
+/*07*/	INST_ENTRY( SRAV,	" %d, %t, %s",	0 ),
+/*08*/	INST_ENTRY( JR,		" %s",		1 ), 
+/*09*/	INST_ENTRY( JALR,	" %s",		1 ), 
+/*0A*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0B*/	INST_ENTRY( SYSCALL,	"",		0 ), 
+/*0C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*10*/	INST_ENTRY( MFHI,	" %d",		0 ), 
+/*11*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*12*/	INST_ENTRY( MFLO,	" %d",		0 ), 
+/*13*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*14*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*15*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*16*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*17*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*18*/	INST_ENTRY( MULT,	" %s, %t",	0 ), 
+/*19*/	INST_ENTRY( MULTU,	" %s, %t",	0 ), 
+/*1A*/	INST_ENTRY( DIV,	" %s, %t",	0 ), 
+/*1B*/	INST_ENTRY( DIVU,	" %s, %t",	0 ), 
+/*1C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*20*/	INST_ENTRY( ADD,	" %d, %s, %t",	0 ), 
+/*21*/	INST_ENTRY( ADDU,	" %d, %s, %t",	0 ), 
+/*22*/	INST_ENTRY( SUB,	" %d, %s, %t",	0 ), 
+/*23*/	INST_ENTRY( SUBU,	" %d, %s, %t",	0 ), 
+/*24*/	INST_ENTRY( AND,	" %d, %s, %t",	0 ), 
+/*25*/	INST_ENTRY( OR,		" %d, %s, %t",	0 ), 
+/*26*/	INST_ENTRY( XOR,	" %d, %s, %t",	0 ), 
+/*27*/	INST_ENTRY( NOR,	" %d, %s, %t",	0 ), 
+/*28*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*29*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*2A*/	INST_ENTRY( SLT,	" %d, %s, %t",	0 ), 
+/*2B*/	INST_ENTRY( SLTU,	" %t, %s, %i",	0 )
 };	
 
 /* Regimm opcodes.
  * The first six bits are 000001 and the instruction is encoded in the t register space. */
 
 mipsInstrTbl regimmInstructionTable[] = {
-	{BLTZ	, "BLTZ %s, %i"},
-	{BGEZ	, "BGEZ %s, %i"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{BGTZ	, "BGTZ %s, %i"},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}, // 10
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""},
-	{NOOP	, ""}
+/*00*/	INST_ENTRY( BLTZ,	" %s, %i",	1 ), 
+/*01*/	INST_ENTRY( BGEZ,	" %s, %i",	1 ), 
+/*02*/	INST_ENTRY( BLTZL,	" %s, %i",	1 ), 
+/*03*/	INST_ENTRY( BGEZL,	" %s, %i",	1 ), 
+/*04*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*05*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*06*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*07*/	INST_ENTRY( BGTZ,	" %s, %i",	1 ), 
+/*08*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*09*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0A*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0B*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*0F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*10*/	INST_ENTRY( BLTZAL,	" %s, %i",	1 ), 
+/*11*/	INST_ENTRY( BGEZAL,	" %s, %i",	1 ), 
+/*12*/	INST_ENTRY( BLTZALL,	" %s, %i",	1 ), 
+/*13*/	INST_ENTRY( BGEZALL,	" %s, %i",	1 ), 
+/*14*/	INST_ENTRY( NOOP,	"",		0 )			/* NOOP */
 };
 
 void execOpcode(mipsDasm *dasm)
 {
 #ifdef DEBUG		
-	printf("Instruction 0x%08X Function 0x%08X\n", dasm->instruction, dasm->funct);
+	printf("Instruction 0x%08X Function 0x%08X rt 0x%08X\n", dasm->instruction, dasm->funct, dasm->rt);
 #endif
-	if(dasm->instruction != 0)
-		instructionTable[dasm->instruction].execute(dasm);
-	else if(dasm->instruction == 0)
-		specialInstructionTable[dasm->funct].execute(dasm);
-	else if(dasm->instruction == 1)
-		regimmInstructionTable[dasm->rt].execute(dasm);
+	if(dasm->instruction == 0) {
+		if(dasm->funct <= SPECIAL_INST_COUNT) {
+			specialInstructionTable[dasm->funct].execute(dasm);
+		}else{
+#ifdef DEBUG
+			printf("Function is too high!\n");
+#endif
+		}
+	}else if(dasm->instruction == 1) {
+		if(dasm->rt <= REGIMM_INST_COUNT) {
+			regimmInstructionTable[dasm->rt].execute(dasm);
+		}else{
+#ifdef DEBUG
+			printf("rt is too high!\n");
+#endif
+		}
+	}else{
+		if(dasm->instruction <= NORMAL_INST_COUNT) {
+			instructionTable[dasm->instruction].execute(dasm);
+		}else{
+#ifdef DEBUG
+			printf("Instruction is too high!\n");
+#endif
+		}
+	}
 }
 
 char* textOpcode(mipsDasm *dasm)
 {
-	if(dasm->instruction != 0)
-		return dasmFormat(instructionTable[dasm->instruction].textDisasm, dasm);
-	else if(dasm->instruction == 0)
-		return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
-	else if(dasm->instruction == 1)
-		return dasmFormat(regimmInstructionTable[dasm->rt].textDisasm, dasm);
-	return "Not implemented";
+	if(dasm->instruction == 0) {
+		if(dasm->funct <= SPECIAL_INST_COUNT) {
+			return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
+		}else{
+#ifdef DEBUG
+			printf("Function is too high!\n");
+#endif
+			return "Not implemented";
+		}
+	}else if(dasm->instruction == 1) {
+		if(dasm->rt <= REGIMM_INST_COUNT) {
+			return dasmFormat(regimmInstructionTable[dasm->rt].textDisasm, dasm);
+		}else{
+#ifdef DEBUG
+			printf("rt is too high!\n");
+#endif
+			return "Not implemented";
+		}
+	}else{
+		if(dasm->instruction <= NORMAL_INST_COUNT) {
+			return dasmFormat(instructionTable[dasm->instruction].textDisasm, dasm);
+		}else{
+#ifdef DEBUG
+			printf("Instruction is too high!\n");
+#endif
+			return "Not implemented";
+		}
+	}
 }

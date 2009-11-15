@@ -16,6 +16,7 @@ typedef struct {
 typedef struct {
 	mipsInstruction (*execute)(mipsDasm *dasm);
 	char textDisasm[20];
+	u8 delay;
 } mipsInstrTbl;
 
 /* static char *registerName[34] = {

@@ -1,12 +1,5 @@
 greenLeaf
 
-A mips III cpu emulator written by The Lemon Man and released under the GPL license.
-Yeah its missing ram mirroring and alot of opcodes, so ill be very glad to receive patches :D
+A MIPS III cpu emulator written by The Lemon Man & SquidMan and released under the GPLv2 license.
+Missing lots of stuff, so feel free to contribute :3
 
----------------------------------------------------------------------
-
-Notes from SquidMan:
-This is my fork of greenLeaf. I'm going to put all my patches here,
-you might want to integrate most of them, Lemon :P (I'LL TEST, I SWEAR)
-My code style is different though, and I'm probably going to change most
-of it to how I code. Have fun fixing those up for yourself :P

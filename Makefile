@@ -1,7 +1,7 @@
 OBJECTS = binary.o dasm.o emulator.o greenLeaf.o instructions.o memory.o uart.o
 OUTPUT = greenLeaf
 DEFINES = -DDEBUG
-CFLAGS = -Wall -O2
+CFLAGS = -std=c99 -Wall -pedantic -O2
 LDFLAGS = 
 
 all: $(OUTPUT)

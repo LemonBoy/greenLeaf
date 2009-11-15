@@ -35,14 +35,14 @@ u32 openElf(char *path, u32 baseaddr)
 		fseek(fd, elfHdr.e_shoff + (section * sizeof(Elf32_Shdr)), SEEK_SET);
 		fread(&sectionHdr, 1, sizeof(Elf32_Shdr), fd);
 		
-		printf("Section addr 0x%08x\n", sectionHdr.sh_addr);
+		printf("Section addr 0x%08X\n", sectionHdr.sh_addr);
 		
 		if(sectionHdr.sh_flags & SHT_NOBITS)
 			memoryset(sectionHdr.sh_addr, 0, sectionHdr.sh_size);
 		
 		if(sectionHdr.sh_flags & SHF_EXECINSTR) {
 #ifdef DEBUG
-			printf("Executable section %d (Size: 0x%08x)\n", section, sectionHdr.sh_size);
+			printf("Executable section %d (Size: 0x%08X)\n", section, sectionHdr.sh_size);
 #endif
 			entryPoint |= (sectionHdr.sh_addr & 0x3FFFFFFF);
 			
