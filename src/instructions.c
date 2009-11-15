@@ -687,7 +687,7 @@ MIPS_INSTRUCTION( NOOP )
 /* Syscall. */
 MIPS_INSTRUCTION( SYSCALL )
 {
-	generateException(8, dasm);
+	generateException(8, dasm->delay);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }	
 

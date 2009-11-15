@@ -31,7 +31,7 @@ mipsRegister readRegister(mipsRegister reg)
 void setCop0Register(mipsRegister reg, u32 value)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Write 0x%08X in %llu\n", value, reg);
+	printf("Cop0 -> Write 0x%08X in cop0[%i]\n", value, reg);
 #endif
 	emulatedCpu.cop0[reg] = value;
 }
@@ -39,7 +39,7 @@ void setCop0Register(mipsRegister reg, u32 value)
 mipsRegister readCop0Register(mipsRegister reg)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Read %llu\n", reg);
+	printf("Cop0 -> Read cop0[%i]\n", reg);
 #endif	
 	return emulatedCpu.cop0[reg];
 }
@@ -160,19 +160,19 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	}
 }
 
-void generateException(int exception, mipsDasm *instruction)
+void generateException(int exception, int delay)
 {
 	printf("Caught exception 0x%08X\n", exception);
 
-	emulatedCpu.cop0[13] = (instruction->delay) ? (emulatedCpu.cop0[13] << 31) | 1 : 0;
-	emulatedCpu.cop0[13] = (emulatedCpu.cop0[13] & 0xFFFFFF00) | exception << 2;
+	setCop0Register(13, (delay) ? (emulatedCpu.cop0[13] << 31) | 1 : 0);
+	setCop0Register(13, (emulatedCpu.cop0[13] & 0xFFFFFF00) | exception << 2);
 
-	emulatedCpu.cop0[14] = emulatedCpu.pc;
+	setCop0Register(14, emulatedCpu.pc);
 	
-	if(instruction->delay) {
+	if (delay) {
 		printf("Setting branch delay\n");
-		emulatedCpu.cop0[14] -= 4;
-		emulatedCpu.cop0[13] |= 0x80000000;
+		setCop0Register(14, readCop0Register(14) - 4);
+		setCop0Register(13, readCop0Register(13) | 0x80000000);
 	}
 	
 	printf("Jumping to the reset vector\n");

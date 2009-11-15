@@ -78,6 +78,8 @@ int main(int argc, char *argv[])
 	
 	setPC(0xBFC00000);
 	
+	readByte(0x01);
+	
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {

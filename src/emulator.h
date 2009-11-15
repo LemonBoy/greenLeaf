@@ -68,6 +68,6 @@ void advancePC(mipsRegister nextPC);
 void setPC(mipsRegister nextPC);
 void setJump(mipsJumpAddress jumpAddress);
 void doLink(int r, int reg);
-void generateException(int exception, mipsDasm *instruction);
+void generateException(int exception, int delay);
 
 #endif

@@ -19,7 +19,7 @@ char* registerToName(mipsRegister reg)
 	return registerName[reg];
 }
 
-char* dasmFormat(char *haystack, mipsDasm *dasm)
+char *dasmFormat(char *haystack, mipsDasm *dasm)
 {
 	char formattedStr[128];
 	
@@ -70,7 +70,7 @@ char* dasmFormat(char *haystack, mipsDasm *dasm)
 	
 	*fptr = '\0';
 	
-	return strdup(formattedStr);
+	return (char *)strdup(formattedStr);
 }					
 
 void dasmOpcode(u32 opcode, mipsDasm **ret)
