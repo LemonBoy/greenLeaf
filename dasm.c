@@ -85,20 +85,24 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 	dasm->jump = JUMP(opcode);
 	dasm->funct = FUNCT(opcode);
 	
-	if(dasm->instruction != 0) {
+	if(dasm->instruction != 0) { /* Normal instructions. */
 		switch(dasm->instruction) {
 			case 0x2:
 			case 0x3:
 			case 0x4:
 			case 0x5:
 			case 0x6:
+			case 0x14:
+			case 0x15:
+			case 0x16:
+			case 0x17:
 				dasm->delay = 1;
 				break;
 			default:
 				dasm->delay = 0;
 				break;
 		}
-	}else if(dasm->instruction == 0) {
+	}else if(dasm->instruction == 0) { /* Special instructions. */
 		switch(dasm->funct) {
 			case 0x8:
 			case 0x9:
@@ -108,11 +112,16 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 				dasm->delay = 0;
 				break;
 		}
-	}else if(dasm->instruction == 1) {
+	}else if(dasm->instruction == 1) { /* REGIMM instructions. */
 		switch(dasm->rt) {
 			case 0x0:
 			case 0x1:
+			case 0x3:
 			case 0x7:
+			case 0x10:
+			case 0x11:
+			case 0x12:
+			case 0x13:
 				dasm->delay = 1;
 				break;
 			default:

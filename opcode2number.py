@@ -6,4 +6,4 @@ if len(bytes) != 6:
 num = 0
 for p in range(6):
         num |= int(bytes[p]) << (5 - p)
-print 'Table index : %i' % num
+print 'Table index : %i -> Hex %#x' % (num, num)
