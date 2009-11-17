@@ -8,10 +8,12 @@
 #define NORMAL_INST_COUNT	0x3F
 #define SPECIAL_INST_COUNT	0x3F
 #define REGIMM_INST_COUNT	0x1F
+#define COPROC_INST_COUNT	0x1F
 
-extern mipsInstrTbl regimmInstructionTable[];
-extern mipsInstrTbl specialInstructionTable[];
-extern mipsInstrTbl instructionTable[];
+extern mipsCopInstrTbl coprocInstructionTable[];
+extern mipsInstrTbl    regimmInstructionTable[];
+extern mipsInstrTbl    specialInstructionTable[];
+extern mipsInstrTbl    instructionTable[];
 
 void execOpcode(mipsDasm *dasm);
 char* textOpcode(mipsDasm *dasm);

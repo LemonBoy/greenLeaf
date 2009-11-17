@@ -40,12 +40,12 @@ typedef struct {
 	u8  (*readByte) (u32 address);
 	u16 (*readHword)(u32 address);
 	u32 (*readWord) (u32 address);
-	u64 (*readDword)(u32 address);	
+	u64 (*readDword)(u32 address);
 	
 	void (*writeByte) (u32 address, u8 value);
 	void (*writeHword)(u32 address, u16 value);
-	void (*writeWord) (u32 address, u32 value);	
-	void (*writeDword)(u32 address, u64 value);	
+	void (*writeWord) (u32 address, u32 value);
+	void (*writeDword)(u32 address, u64 value);
 } mipsCpu;
 
 /* 

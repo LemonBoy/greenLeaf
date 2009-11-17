@@ -104,6 +104,15 @@ void dasmOpcode(u32 opcode, mipsDasm **ret)
 #endif
 			dasm->delay = 0;
 		}
+	}else if((dasm->instruction & ~0x3) == 0x10) {
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			dasm->delay = coprocInstructionTable[dasm->rs].delay;
+		}else{
+#ifdef DEBUG
+			printf("rs is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
 	}else{
 		if(dasm->instruction <= NORMAL_INST_COUNT) {
 			dasm->delay = instructionTable[dasm->instruction].delay;

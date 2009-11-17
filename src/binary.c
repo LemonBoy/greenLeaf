@@ -20,7 +20,7 @@ u32 openElf(char *path, u32 baseaddr)
 	Elf32_Ehdr elfHdr;
 	Elf32_Shdr sectionHdr;
 	
-	u32 entryPoint;
+	u32 entryPoint = 0;
 	
 	FILE* fd = fopen(path, "rb");
 	if(fd == NULL)

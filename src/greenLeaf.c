@@ -43,7 +43,6 @@ void __hexdump(void *d, int len)
 
 int main(int argc, char *argv[])
 {
-	u32 opcode;
 	char* filename;
 	s32 ret;
 	

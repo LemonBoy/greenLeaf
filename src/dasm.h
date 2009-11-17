@@ -19,6 +19,12 @@ typedef struct {
 	u8 delay;
 } mipsInstrTbl;
 
+typedef struct {
+	mipsInstruction (*execute)(mipsDasm *dasm, int cop);
+	char textDisasm[20];
+	u8 delay;
+} mipsCopInstrTbl;
+
 /* static char *registerName[34] = {
 	"zr" , "r1" , "r2" , "r3" , "r4" , "r5" , "r6" , "r7" , "r8" , "r9" , "r10",
 	"r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19", "r20",

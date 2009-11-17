@@ -15,6 +15,7 @@ void cop0Handler(mipsDasm *dasm)
 	switch(dasm->rs) {
 		case 0x0:
 			setRegister(dasm->rt, readCop0Register(dasm->rd));
+			advancePC(DEFAULT_INSTRUCTION_PC);
 			break;
 		case 0x4:
 			setCop0Register(dasm->rd, (u32)(dasm->rt));
@@ -46,9 +47,13 @@ static mipsRegister _zeroextend(mipsRegister_u input, mipsRegister_u sign, int o
  * All the opcode translations should go there.
  */
 
-#define MIPS_INSTR_NAME(name)		mips_##name
-#define MIPS_INSTRUCTION(name)		static mipsInstruction MIPS_INSTR_NAME( name ) (mipsDasm *dasm)
-#define INST_ENTRY(name, args, delay)	{ MIPS_INSTR_NAME( name ), #name args } 
+#define MIPS_INSTR_NAME(name)			mips_##name
+#define MIPS_INSTRUCTION(name)			static mipsInstruction MIPS_INSTR_NAME(name) (mipsDasm *dasm)
+#define INST_ENTRY(name, args, delay)		{ MIPS_INSTR_NAME(name), #name args, delay } 
+
+#define MIPS_COP_INSTR_NAME(name)		mips_cop_##name
+#define MIPS_COP_INSTRUCTION(name)		static mipsInstruction MIPS_COP_INSTR_NAME(name)(mipsDasm *dasm, int cop)
+#define COP_INST_ENTRY(name, args, delay)	{ MIPS_COP_INSTR_NAME(name), #name args, delay } 
 
 /*****************************************************************************/
 /*  Arithmetic instructions                                                  */
@@ -283,7 +288,7 @@ MIPS_INSTRUCTION( SRAV )
 MIPS_INSTRUCTION( BEQ )
 {
 	if(readRegister(dasm->rs) == readRegister(dasm->rt))
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -292,7 +297,7 @@ MIPS_INSTRUCTION( BEQ )
 MIPS_INSTRUCTION( BEQL )
 {
 	if(readRegister(dasm->rs) == readRegister(dasm->rt)) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -303,7 +308,7 @@ MIPS_INSTRUCTION( BEQL )
 MIPS_INSTRUCTION( BGEZ )
 {
 	if(((s64)readRegister(dasm->rs)) >= 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -312,7 +317,7 @@ MIPS_INSTRUCTION( BGEZ )
 MIPS_INSTRUCTION( BGEZL )
 {
 	if(((s64)readRegister(dasm->rs)) >= 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -324,7 +329,7 @@ MIPS_INSTRUCTION( BGEZAL )
 {
 	doLink(0, 0);
 	if(readRegister(dasm->rs) >= 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -334,7 +339,7 @@ MIPS_INSTRUCTION( BGEZALL )
 {
 	doLink(0, 0);
 	if(readRegister(dasm->rs) >= 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -345,7 +350,7 @@ MIPS_INSTRUCTION( BGEZALL )
 MIPS_INSTRUCTION( BGTZ )
 {
 	if(readRegister(dasm->rs) > 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -354,7 +359,7 @@ MIPS_INSTRUCTION( BGTZ )
 MIPS_INSTRUCTION( BGTZL )
 {
 	if(readRegister(dasm->rs) > 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -365,7 +370,7 @@ MIPS_INSTRUCTION( BGTZL )
 MIPS_INSTRUCTION( BLEZ )
 {
 	if(readRegister(dasm->rs) <= 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -374,7 +379,7 @@ MIPS_INSTRUCTION( BLEZ )
 MIPS_INSTRUCTION( BLEZL )
 {
 	if(readRegister(dasm->rs) <= 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -385,7 +390,7 @@ MIPS_INSTRUCTION( BLEZL )
 MIPS_INSTRUCTION( BLTZ )
 {
 	if(readRegister(dasm->rs) < 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -394,7 +399,7 @@ MIPS_INSTRUCTION( BLTZ )
 MIPS_INSTRUCTION( BLTZL )
 {
 	if(readRegister(dasm->rs) < 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -406,7 +411,7 @@ MIPS_INSTRUCTION( BLTZAL )
 {
 	doLink(0, 0);
 	if(readRegister(dasm->rs) < 0)
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -416,7 +421,7 @@ MIPS_INSTRUCTION( BLTZALL )
 {
 	doLink(0, 0);
 	if(readRegister(dasm->rs) < 0) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -427,7 +432,7 @@ MIPS_INSTRUCTION( BLTZALL )
 MIPS_INSTRUCTION( BNE )
 {
 	if(readRegister(dasm->rs) != readRegister(dasm->rt))
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
 }
@@ -436,7 +441,7 @@ MIPS_INSTRUCTION( BNE )
 MIPS_INSTRUCTION( BNEL )
 {
 	if(readRegister(dasm->rs) != readRegister(dasm->rt)) {
-		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
+		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16, 64));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -737,38 +742,6 @@ MIPS_INSTRUCTION( SDR )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
-
-/*****************************************************************************/
-/*  Coprocessor instructions                                                 */
-/*****************************************************************************/
-/* Move from coprocessor 0. */
-MIPS_INSTRUCTION( MFC0 )
-{
-	cop0Handler(dasm);
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from coprocessor 1. */
-MIPS_INSTRUCTION( MFC1 )
-{
-	cop0Handler(dasm);			/* TODO: Handle proper cop */
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from coprocessor 2. */
-MIPS_INSTRUCTION( MFC2 )
-{
-	cop0Handler(dasm);			/* TODO: Handle proper cop */
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
-/* Move from coprocessor 3. */
-MIPS_INSTRUCTION( MFC3 )
-{
-	cop0Handler(dasm);			/* TODO: Handle proper cop */
-	advancePC(DEFAULT_INSTRUCTION_PC);
-}
-
 /*****************************************************************************/
 /*  Special instructions                                                     */
 /*****************************************************************************/
@@ -795,6 +768,15 @@ MIPS_INSTRUCTION( NOOP )
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
+/* Reserved No Operation (holds place for reserved slots). */
+MIPS_INSTRUCTION( RNOP )
+{
+#ifdef DEBUG
+	exit(-6);
+#endif
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
 /* Syscall. */
 MIPS_INSTRUCTION( SYSCALL )
 {
@@ -803,12 +785,24 @@ MIPS_INSTRUCTION( SYSCALL )
 }	
 
 /*****************************************************************************/
+/*  Coprocessor instructions                                                 */
+/*****************************************************************************/
+/* No-operation. */
+MIPS_COP_INSTRUCTION( NOOP )
+{
+#ifdef DEBUG
+	exit(-6);
+#endif
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/*****************************************************************************/
 /*  Instruction Tables.                                                      */
 /*****************************************************************************/
 /* General table with all opcodes. */
 mipsInstrTbl instructionTable[] = {
-/*00*/	INST_ENTRY( NOOP,	"",		0 ),
-/*01*/	INST_ENTRY( NOOP,	"",		0 ),
+/*00*/	INST_ENTRY( RNOP,	"",		0 ),
+/*01*/	INST_ENTRY( RNOP,	"",		0 ),
 /*02*/	INST_ENTRY( J,		" %j",		1 ),
 /*03*/	INST_ENTRY( JAL,	" %j",		1 ),
 /*04*/	INST_ENTRY( BEQ,	" %s, %t, %i",	1 ),
@@ -823,10 +817,10 @@ mipsInstrTbl instructionTable[] = {
 /*0D*/	INST_ENTRY( ORI,	" %t, %s, %i",	0 ),
 /*0E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*0F*/	INST_ENTRY( LUI,	" %t, %i",	0 ),
-/*10*/	INST_ENTRY( MFC0,	" %t, %d",	0 ),
-/*11*/	INST_ENTRY( MFC1,	" %t, %d",	0 ),
-/*12*/	INST_ENTRY( MFC2,	" %t, %d",	0 ),
-/*13*/	INST_ENTRY( MFC3,	" %t, %d",	0 ),
+/*10*/	INST_ENTRY( RNOP,	"",		0 ),
+/*11*/	INST_ENTRY( RNOP,	"",		0 ),
+/*12*/	INST_ENTRY( RNOP,	"",		0 ),
+/*13*/	INST_ENTRY( RNOP,	"",		0 ),
 /*14*/	INST_ENTRY( BEQL,	" %s, %t, %i",	1 ), 
 /*15*/	INST_ENTRY( BNEL,	" %s, %t, %i",	1 ), 
 /*16*/	INST_ENTRY( BLEZL,	" %s, %i",	1 ), 
@@ -981,10 +975,49 @@ mipsInstrTbl regimmInstructionTable[] = {
 /*1F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 };
 
+/* Coprocessor opcodes.
+ * The first six bits are 0100xx (where xx is the cop) and the instruction is encoded 
+ * in the s register space. */
+
+mipsCopInstrTbl coprocInstructionTable[] = {
+/*00*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*01*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*02*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*03*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*04*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*05*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*06*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*07*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*08*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*09*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0A*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0B*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0C*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0D*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0E*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*0F*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*10*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*11*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*12*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*13*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*14*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*15*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*16*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*17*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*18*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*19*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1A*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1B*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1C*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1D*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1E*/	COP_INST_ENTRY( NOOP,		"",		0 ),		/* NOOP */ 
+/*1F*/	COP_INST_ENTRY( NOOP,		"",		0 )		/* NOOP */ 
+};
+
 void execOpcode(mipsDasm *dasm)
 {
 #ifdef DEBUG		
-	printf("Instruction 0x%08X Function 0x%08X rt 0x%08X\n", dasm->instruction, dasm->funct, dasm->rt);
+	printf("Instruction 0x%08X Function 0x%08X\n", dasm->instruction, dasm->funct);
 #endif
 	if(dasm->instruction == 0) {
 		if(dasm->funct <= SPECIAL_INST_COUNT) {
@@ -1000,6 +1033,14 @@ void execOpcode(mipsDasm *dasm)
 		}else{
 #ifdef DEBUG
 			printf("rt is too high!\n");
+#endif
+		}
+	}else if((dasm->instruction & ~0x3) == 0x10) {
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			coprocInstructionTable[dasm->rs].execute(dasm, dasm->instruction & 0x3);
+		}else{
+#ifdef DEBUG
+			printf("rs is too high!\n");
 #endif
 		}
 	}else{
@@ -1030,6 +1071,15 @@ char* textOpcode(mipsDasm *dasm)
 		}else{
 #ifdef DEBUG
 			printf("rt is too high!\n");
+#endif
+			return "Not implemented";
+		}
+	}else if((dasm->instruction & ~0x3) == 0x10) {
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			return dasmFormat(coprocInstructionTable[dasm->rs].textDisasm, dasm);
+		}else{
+#ifdef DEBUG
+			printf("rs is too high!\n");
 #endif
 			return "Not implemented";
 		}
