@@ -160,23 +160,63 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	}
 }
 
+/* Todo : Maybe those are better in a .h file along with another one with
+ * the exceptions number ? */
+
+enum {
+	COP0_REG_CONTEXT 	= 4,
+	COP0_REG_BADVADDR 	= 8,
+	COP0_REG_COUNT 		= 9,
+	COP0_REG_COMPARE 	= 11,
+	COP0_REG_STATUS 	= 12,
+	COP0_REG_CAUSE 		= 13,
+	COP0_REG_EPC 		= 14,
+	COP0_REG_WATCHLO 	= 18,
+	COP0_REG_WATCHHI 	= 19,
+	COP0_REG_XCONTEXT 	= 20,
+	COP0_REG_ECC 		= 26,
+	COP0_REG_CACHEERR 	= 27,
+	COP0_REG_ERROREPC 	= 30
+} COP0_REGISTERS;
+
+#define RESET_VECTOR_BEV_0 	(0xFFFFFFFF80000000)
+#define RESET_VECTOR_BEV_1 	(0xFFFFFFFFBFC00200)
+#define DEFAULT_RESET_VECTOR 	(RESET_VECTOR_BEV_1)
+
+/* Todo : Check if whitin another exception.
+   Check out page 141 for all the exception codes.
+   Check page 152 and 175 for more about the exception vectors */
+
 void generateException(u32 exception, u32 delay)
 {
+	mipsRegister resetVectorAddress = DEFAULT_RESET_VECTOR;
+	
 	printf("Caught exception 0x%08X\n", exception);
 
-	setCop0Register(13, (delay) ? ((emulatedCpu.cop0[13] << 31) | 1) : 0);
-	setCop0Register(13, (emulatedCpu.cop0[13] & 0xFFFFFF00) | (exception << 2));
+	setCop0Register(COP0_REG_EPC, emulatedCpu.pc);
+	setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0xFFFFFFFFFFFFFF00) | (exception << 2));
 
-	setCop0Register(14, emulatedCpu.pc);
-	
-	if(delay) {
-		printf("Setting branch delay\n");
-		setCop0Register(14, readCop0Register(14) - 4);
-		setCop0Register(13, readCop0Register(13) | 0x80000000);
+	if (delay) {
+		setCop0Register(COP0_REG_EPC, readCop0Register(COP0_REG_EPC) - 4);
+		/* Set the BV bit in the CAUSE register if we are in a branch delay */
+		setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0x0FFFFFFFFFFFFF00) | ((mipsRegister)1 << 63));
+	} else {
+		setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0x0FFFFFFFFFFFFF00) | ((mipsRegister)0 << 63));
 	}
 	
-	printf("Jumping to the reset vector\n");
-	setPC(0xBFC00200 + 0x180);
+	if (readCop0Register(COP0_REG_STATUS) & 0x200000) { /* BEV bit is set. */
+		resetVectorAddress = RESET_VECTOR_BEV_1;
+	} else {
+		resetVectorAddress = RESET_VECTOR_BEV_0;
+	}
+	
+	if (!(exception >= 1 && exception <= 3)) { /* Nothing TLB related ? */
+		resetVectorAddress += 0x180;
+	}
+	
+	printf("Jumping to the reset vector at 0x%016x\n", resetVectorAddress);
+	
+	setPC(resetVectorAddress);
 }
 
 void executeOpcode(u32 opcode)

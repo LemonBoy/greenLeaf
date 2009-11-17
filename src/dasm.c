@@ -13,7 +13,6 @@ char *registerName[34] = {
 	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra",
 	"HI", "LO"
 };
-
 char* registerToName(mipsRegister reg)
 {
 	return registerName[reg];

@@ -117,7 +117,7 @@ u8 readByte(u32 address)
 	mipsMappedMemory *bank = getBank(address, sizeof(u8), 1);
 	if (bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
-		generateException(8, 0);
+		generateException(4, 0);
 		exit(1);
 	}
 	return bank->memory[(address ^ bank->addrStart)];
@@ -128,7 +128,7 @@ void writeByte(u32 address, u8 value)
 	mipsMappedMemory *bank = getBank(address, sizeof(u8), 2);
 	if (bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
-		generateException(8, 0);
+		generateException(5, 0);
 		exit(1);
 	}	
 	bank->memory[(address ^ bank->addrStart)] = value;
