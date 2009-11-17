@@ -22,6 +22,9 @@
 #define IMMEDIATE(opcode)	(opcode & 0xFFFF)
 #define JUMP(opcode)		(opcode & 0x3FFFFFF)
 
+#define EXCEPTION_ADDRESS	0
+#define EXCEPTION_SYSCALL	8
+
 typedef struct {
 	/* Backupped opcode for 1-instr-delay. */
 	mipsRegister bOpcode;
@@ -55,19 +58,24 @@ mipsCpu emulatedCpu;
  * Function prototypes.
  */
 
-mipsRegister getNextPC();
-mipsRegister getPC();
-void printRegisters();
-void initializeCPU(u8 endian, u32 stackPtr);
-void executeOpcode(u32 opcode);
-void setRegister(mipsRegister reg, u32 value);
-void setCop0Register(mipsRegister reg, u32 value);
-mipsRegister readRegister(mipsRegister reg);
-mipsRegister readCop0Register(mipsRegister reg);
-void advancePC(mipsRegister nextPC);
-void setPC(mipsRegister nextPC);
-void setJump(mipsJumpAddress jumpAddress);
-void doLink(int r, int reg);
-void generateException(int exception, int delay);
+void		initializeCPU	 (u8 endian, u32 stackPtr);
+void		runProcessor	 ();
+void		executeOpcode	 (u32 opcode);
+void		printRegisters	 ();
+void		generateException(u32 exception, u32 delay);
+
+void		setCop0Register	(mipsReg reg, mipsRegister value);
+mipsRegister	readCop0Register(mipsReg reg);
+
+mipsRegister	getPC		();
+mipsRegister	getNextPC	();
+
+void		setRegister	(mipsReg reg, mipsRegister value);
+mipsRegister	readRegister	(mipsReg reg);
+
+void		advancePC	(mipsRegister nextPC);
+void		setPC		(mipsRegister nextPC);
+void		setJump		(mipsJumpAddress jumpAddress);
+void		doLink		(int r, int reg);
 
 #endif

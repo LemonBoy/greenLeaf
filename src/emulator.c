@@ -9,10 +9,10 @@
  *  Register related stuff. 
  */
 
-void setRegister(mipsRegister reg, u32 value)
+void setRegister(mipsReg reg, mipsRegister value)
 {
 #ifdef DEBUG
-	printf("Write 0x%08X in %s\n", value, registerToName(reg));
+	printf("Write 0x%016llX in %s\n", value, registerToName(reg));
 #endif
 	/* Keep r0 hardwired to 0 */
 	if(reg == 0)
@@ -20,26 +20,26 @@ void setRegister(mipsRegister reg, u32 value)
 	emulatedCpu.r[reg] = value;
 }
 
-mipsRegister readRegister(mipsRegister reg)
+mipsRegister readRegister(mipsReg reg)
 {
 #ifdef DEBUG
-	printf("Read %s\n", registerToName(reg));
+	printf("Read %s: 0x%016llX\n", registerToName(reg), emulatedCpu.r[reg]);
 #endif	
 	return emulatedCpu.r[reg];
 }
 
-void setCop0Register(mipsRegister reg, u32 value)
+void setCop0Register(mipsReg reg, mipsRegister value)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Write 0x%08X in cop0[%i]\n", value, reg);
+	printf("Cop0 -> Write 0x%016llX in cop0[%u]\n", value, reg);
 #endif
 	emulatedCpu.cop0[reg] = value;
 }
 
-mipsRegister readCop0Register(mipsRegister reg)
+mipsRegister readCop0Register(mipsReg reg)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Read cop0[%i]\n", reg);
+	printf("Cop0 -> Read cop0[%u]: 0x%016llX\n", reg, emulatedCpu.cop0[reg]);
 #endif	
 	return emulatedCpu.cop0[reg];
 }
@@ -94,9 +94,9 @@ void printRegisters()
 	int reg;
 	
 	for(reg = 0; reg < 32; reg++)
-		printf( "%s: 0x%08llX\tCOP0 %2d: 0x%08llX\n", \
+		printf( "%s: 0x%016llX\tCOP0 %2d: 0x%016llX\n", \
 			registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
-	printf("HI: 0x%08llX\tLO:      0x%08llX\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
+	printf("HI: 0x%016llX\tLO:      0x%016llX\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
 	printf("PC: 0x%08X\tNext PC: 0x%08X\n", emulatedCpu.pc, emulatedCpu.nPc);
 }
 
@@ -160,16 +160,16 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	}
 }
 
-void generateException(int exception, int delay)
+void generateException(u32 exception, u32 delay)
 {
 	printf("Caught exception 0x%08X\n", exception);
 
-	setCop0Register(13, (delay) ? (emulatedCpu.cop0[13] << 31) | 1 : 0);
-	setCop0Register(13, (emulatedCpu.cop0[13] & 0xFFFFFF00) | exception << 2);
+	setCop0Register(13, (delay) ? ((emulatedCpu.cop0[13] << 31) | 1) : 0);
+	setCop0Register(13, (emulatedCpu.cop0[13] & 0xFFFFFF00) | (exception << 2));
 
 	setCop0Register(14, emulatedCpu.pc);
 	
-	if (delay) {
+	if(delay) {
 		printf("Setting branch delay\n");
 		setCop0Register(14, readCop0Register(14) - 4);
 		setCop0Register(13, readCop0Register(13) | 0x80000000);
@@ -187,7 +187,7 @@ void executeOpcode(u32 opcode)
 
 #ifdef DEBUG
 	printf("Should use branch delay : %s\n", (opc->delay) ? "Yes" : "No");
-	printf(">> %s\n", textOpcode(opc));
+	printf(">> (%08X) %s\n", opcode, textOpcode(opc));
 #endif
 	
 	if(opc->delay && emulatedCpu.bOpcode == 0) {
@@ -206,3 +206,35 @@ void executeOpcode(u32 opcode)
 
 	execOpcode(opc);
 }
+
+void runProcessor()
+{
+	u32 opcode;
+	if(emulatedCpu.endian == ENDIANNESS_LE) {
+		opcode = (u8)(emulatedCpu.readByte(getNextPC() + 3)) << 24 | 
+			 (u8)(emulatedCpu.readByte(getNextPC() + 2)) << 16 | 
+			 (u8)(emulatedCpu.readByte(getNextPC() + 1)) << 8  | 
+			 (u8)(emulatedCpu.readByte(getNextPC()));
+	}else{
+		opcode = (u32)(emulatedCpu.readWord(getNextPC()));
+	}
+	executeOpcode(opcode);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

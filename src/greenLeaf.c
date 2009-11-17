@@ -78,28 +78,14 @@ int main(int argc, char *argv[])
 	
 	setPC(0xBFC00000);
 	
-	readByte(0x01);
+//	readByte(0x01);
 	
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {
 		fgetc(stdin);
-		if(emulatedCpu.endian == ENDIANNESS_LE) {
-			opcode = (u8)(emulatedCpu.readByte(getNextPC() + 3)) << 24 | 
-				 (u8)(emulatedCpu.readByte(getNextPC() + 2)) << 16 | 
-				 (u8)(emulatedCpu.readByte(getNextPC() + 1)) << 8  | 
-				 (u8)(emulatedCpu.readByte(getNextPC()));
-		}else{
-			opcode = (u32)(emulatedCpu.readWord(getNextPC()));
-		}
-		
-		/*if(getNextPC() >= 0xBFC0002C) {
-			break;
-		}*/
-		
-		executeOpcode(opcode);
-		printf("Uart character %c\n", readUartByte());
-		printRegisters();
+		runProcessor();
+//		printRegisters();
 	}
 	
 	printf("Execution finished... unmapping the ram\n");

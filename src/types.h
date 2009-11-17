@@ -10,10 +10,23 @@ typedef signed short		s16;
 typedef signed int		s32;
 typedef signed long long	s64;
 
-typedef u64	mipsRegister;
-typedef u32	mipsJumpAddress;
-typedef u8	mipsShift;
-typedef s16	mipsSignedImmediate;
-typedef void	mipsInstruction;
+typedef s64			mipsRegister_s;
+typedef u64			mipsRegister_u;
+typedef mipsRegister_s		mipsRegister;
+
+typedef u8			mipsReg;
+
+typedef u32			mipsJumpAddress_u;
+typedef s32			mipsJumpAddress_s;
+typedef mipsJumpAddress_u	mipsJumpAddress;
+
+typedef u8			mipsShift_u;
+typedef s8			mipsShift_s;
+typedef mipsShift_u		mipsShift;
+
+typedef s16			mipsSignedImmediate;
+typedef u16			mipsUnsignedImmediate;
+
+typedef void			mipsInstruction;
 
 #endif

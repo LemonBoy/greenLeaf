@@ -46,17 +46,17 @@ char *dasmFormat(char *haystack, mipsDasm *dasm)
 					len = strlen(registerToName(dasm->rd));
 					break;										
 				case 'i':
-					sprintf(fmtBuf, "%#x", dasm->immediate);
+					sprintf(fmtBuf, "0x%04X", dasm->immediate & 0xFFFF);
 					strcpy(&(*fptr), fmtBuf);
 					len = strlen(fmtBuf);
 					break;
 				case 'j':
-					sprintf(fmtBuf, "%#x", dasm->jump);
+					sprintf(fmtBuf, "%c0x%07X", (dasm->jump & 0x2000000) ? '-' : ' ', dasm->jump & 0x1FFFFFF);
 					strcpy(&(*fptr), fmtBuf);
 					len = strlen(fmtBuf);
 					break;
 				case 'h':
-					sprintf(fmtBuf, "%#x", dasm->shift);
+					sprintf(fmtBuf, "0x%02X", dasm->shift & 0x1F);
 					strcpy(&(*fptr), fmtBuf);
 					len = strlen(fmtBuf);
 					break;

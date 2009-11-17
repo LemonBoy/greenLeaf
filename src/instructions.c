@@ -22,9 +22,23 @@ void cop0Handler(mipsDasm *dasm)
 	}
 }
 
-static mipsRegister _signextend(mipsRegister input, mipsRegister sign, int size)
+static mipsRegister _signextend(mipsRegister_u input, mipsRegister_u sign, int origsize, int newsize)
 {
-	return (input & ~(1 << (size - 1))) | (sign & (1 << (size - 1)));
+	int s = (((sign & (1 << (origsize - 1))) > 0) ? 1 : 0);
+	mipsRegister_u mask;
+	if(s) {
+		mask = (0 - 1) & ~((1 << origsize) - 1);
+		input |= mask;
+	}else{
+		mask = (1 << origsize) - 1;
+		input &= mask;
+	}
+	return input;
+}
+
+static mipsRegister _zeroextend(mipsRegister_u input, mipsRegister_u sign, int origsize, int newsize)
+{
+	return (input & ((1 << origsize) - 1));
 }
 
 /*
@@ -49,21 +63,23 @@ MIPS_INSTRUCTION( ADD )
 /* Add unsigned. */
 MIPS_INSTRUCTION( ADDU )
 {
-	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) + (u64)(readRegister(dasm->rt)));
+	setRegister(dasm->rd, ((mipsRegister_u)readRegister(dasm->rs)) + ((mipsRegister_u)readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Add immediate. */
 MIPS_INSTRUCTION( ADDI )
 {
-	setRegister(dasm->rt, readRegister(dasm->rs) + dasm->immediate);
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	setRegister(dasm->rd, readRegister(dasm->rs) + imm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Add immediate unsigned. */
 MIPS_INSTRUCTION( ADDIU )
 {
-	setRegister(dasm->rt, (u64)(readRegister(dasm->rs)) + (u64)(dasm->immediate));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	setRegister(dasm->rd, ((mipsRegister_u)readRegister(dasm->rs)) + imm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -77,21 +93,21 @@ MIPS_INSTRUCTION( SUB )
 /* Subtract unsigned. */
 MIPS_INSTRUCTION( SUBU )
 {
-	setRegister(dasm->rd, (u64)(readRegister(dasm->rs)) - (u64)(readRegister(dasm->rt)));
+	setRegister(dasm->rd, ((mipsRegister_u)readRegister(dasm->rs)) - ((mipsRegister_u)readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Multiply. */
 MIPS_INSTRUCTION( MULT )
 {
-	setRegister(33, readRegister(dasm->rs) * readRegister(dasm->rt));
+	setRegister(REGISTER_HI, readRegister(dasm->rs) * readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Multiply unsigned. */
 MIPS_INSTRUCTION( MULTU )
 {
-	setRegister(33, (u64)(readRegister(dasm->rs)) * (u64)(readRegister(dasm->rt)));
+	setRegister(REGISTER_HI, ((mipsRegister_u)readRegister(dasm->rs)) * ((mipsRegister_u)readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -106,8 +122,8 @@ MIPS_INSTRUCTION( DIV )
 /* Divide unsigned. */
 MIPS_INSTRUCTION( DIVU )
 {
-	setRegister(REGISTER_HI, (u64)(readRegister(dasm->rs)) / (u64)(readRegister(dasm->rt)));
-	setRegister(REGISTER_LO, (u64)(readRegister(dasm->rs)) % (u64)(readRegister(dasm->rt)));
+	setRegister(REGISTER_HI, ((mipsRegister_u)readRegister(dasm->rs)) / ((mipsRegister_u)readRegister(dasm->rt)));
+	setRegister(REGISTER_LO, ((mipsRegister_u)readRegister(dasm->rs)) % ((mipsRegister_u)readRegister(dasm->rt)));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -125,7 +141,8 @@ MIPS_INSTRUCTION( AND )
 /* And immediate. */
 MIPS_INSTRUCTION( ANDI )
 {
-	setRegister(dasm->rt, readRegister(dasm->rs) & dasm->immediate);
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	setRegister(dasm->rt, readRegister(dasm->rs) & imm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -139,7 +156,8 @@ MIPS_INSTRUCTION( OR )
 /* Or immediate. */
 MIPS_INSTRUCTION( ORI )
 {
-	setRegister(dasm->rt, readRegister(dasm->rs) | dasm->immediate);
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	setRegister(dasm->rt, readRegister(dasm->rs) | imm);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -170,7 +188,7 @@ MIPS_INSTRUCTION( SLT )
 /* Set if less than immediate unsigned. */
 MIPS_INSTRUCTION( SLTU )
 {
-	if((mipsRegister)readRegister(dasm->rs) < (mipsRegister)readRegister(dasm->rt))
+	if(((mipsRegister_u)readRegister(dasm->rs)) < ((mipsRegister_u)readRegister(dasm->rt)))
 		setRegister(dasm->rd, 1);
 	else
 		setRegister(dasm->rd, 0);
@@ -180,7 +198,8 @@ MIPS_INSTRUCTION( SLTU )
 /* Set if less than immediate. */
 MIPS_INSTRUCTION( SLTI )
 {
-	if(readRegister(dasm->rs) < dasm->immediate)
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	if(readRegister(dasm->rs) < imm)
 		setRegister(dasm->rt, 1);
 	else
 		setRegister(dasm->rt, 0);
@@ -190,7 +209,8 @@ MIPS_INSTRUCTION( SLTI )
 /* Set if less than immediate unsigned. */
 MIPS_INSTRUCTION( SLTIU )
 {
-	if((mipsRegister)readRegister(dasm->rs) < (mipsRegister)dasm->immediate)
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	if(((mipsRegister_u)readRegister(dasm->rs)) < imm)
 		setRegister(dasm->rt, 1);
 	else
 		setRegister(dasm->rt, 0);
@@ -204,44 +224,54 @@ MIPS_INSTRUCTION( SLTIU )
 /* Shift left logical. */
 MIPS_INSTRUCTION( SLL )
 {
-	setRegister(dasm->rd, readRegister(dasm->rt) << dasm->shift);
+	u32 result = readRegister(dasm->rt) << dasm->shift;
+	s64 res = _signextend(result, result, 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift left logical variable. */
 MIPS_INSTRUCTION( SLLV )
 {
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) << readRegister(dasm->rs), readRegister(dasm->rt), 64));
+	u32 result = readRegister(dasm->rt) << dasm->rs;
+	s64 res = _signextend(result, result, 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift right logical. */
 MIPS_INSTRUCTION( SRL )
 {
-	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
+	u32 result = readRegister(dasm->rt) >> dasm->shift;
+	s64 res = _signextend(result, result, 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift right logical variable. */
 MIPS_INSTRUCTION( SRLV )
 {
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt), 64));
+	u32 result = readRegister(dasm->rt) >> dasm->rs;
+	s64 res = _signextend(result, result, 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift right arithmetic. */
 MIPS_INSTRUCTION( SRA )
 {
-	/* TODO: Sign Extend */
-	setRegister(dasm->rd, readRegister(dasm->rt) >> dasm->shift);
+	u32 result = readRegister(dasm->rt) >> dasm->shift;
+	s64 res = _signextend(result, readRegister(dasm->rt), 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Shift right arithmetic variable. */
 MIPS_INSTRUCTION( SRAV )
 {
-	/* TODO: Sign Extend */
-	setRegister(dasm->rd, _signextend(readRegister(dasm->rt) >> readRegister(dasm->rs), readRegister(dasm->rt), 64));
+	u32 result = readRegister(dasm->rt) >> dasm->rs;
+	s64 res = _signextend(result, readRegister(dasm->rt), 32, 64);
+	setRegister(dasm->rd, res);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -272,7 +302,7 @@ MIPS_INSTRUCTION( BEQL )
 /* Branch if greater or equal zero. */
 MIPS_INSTRUCTION( BGEZ )
 {
-	if(readRegister(dasm->rs) >= 0)
+	if(((s64)readRegister(dasm->rs)) >= 0)
 		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
 	else
 		advancePC(DEFAULT_INSTRUCTION_PC);
@@ -281,7 +311,7 @@ MIPS_INSTRUCTION( BGEZ )
 /* Branch if greater or equal zero likely. */
 MIPS_INSTRUCTION( BGEZL )
 {
-	if(readRegister(dasm->rs) >= 0) {
+	if(((s64)readRegister(dasm->rs)) >= 0) {
 		advancePC(_signextend(dasm->immediate << 2, dasm->immediate, 16));
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
@@ -450,42 +480,61 @@ MIPS_INSTRUCTION( JR )
 /* Load byte. */
 MIPS_INSTRUCTION( LB )
 {
-	setRegister(dasm->rt, (s8)(emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate)));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	s8 value = emulatedCpu.readByte(readRegister(dasm->rs) + imm);
+	setRegister(dasm->rt, _signextend(value, value, 8, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load byte unsigned. */
 MIPS_INSTRUCTION( LBU )
 {
-	setRegister(dasm->rt, emulatedCpu.readByte(readRegister(dasm->rs) + dasm->immediate));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	s8 value = emulatedCpu.readByte(readRegister(dasm->rs) + imm);
+	setRegister(dasm->rt, _zeroextend(value, value, 8, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load halfword. */
 MIPS_INSTRUCTION( LH )
 {
-	setRegister(dasm->rt, (s16)(emulatedCpu.readHword(readRegister(dasm->rs) + dasm->immediate)));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 2)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readHword(off);
+	setRegister(dasm->rt, _signextend(value, value, 16, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load halfword unsigned. */
 MIPS_INSTRUCTION( LHU )
 {
-	setRegister(dasm->rt, emulatedCpu.readHword(readRegister(dasm->rs) + dasm->immediate));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 2)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readHword(off);
+	setRegister(dasm->rt, _zeroextend(value, value, 16, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load upper immediate. */
 MIPS_INSTRUCTION( LUI )
 {
-	setRegister(dasm->rt, dasm->immediate << 16);
+	setRegister(dasm->rt, _signextend(dasm->immediate << 16, dasm->immediate, 16, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load word. */
 MIPS_INSTRUCTION( LW )
 {
-	setRegister(dasm->rt, (s32)(emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate)));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 4)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readWord(off);
+	setRegister(dasm->rt, _signextend(value, value, 32, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -494,7 +543,8 @@ MIPS_INSTRUCTION( LWL )
 {
 	s64 final = 0;
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	for(i = 0; i < (vAddr % 4); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (31 - (i * 4));
 	}
@@ -507,7 +557,8 @@ MIPS_INSTRUCTION( LWR )
 {
 	s64 final = 0;
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	for(i = 0; i < (vAddr % 4); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (i * 4);
 	}
@@ -518,14 +569,24 @@ MIPS_INSTRUCTION( LWR )
 /* Load word unsigned. */
 MIPS_INSTRUCTION( LWU )
 {
-	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 4)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readWord(off);
+	setRegister(dasm->rt, _zeroextend(value, value, 32, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load doubleword. */
 MIPS_INSTRUCTION( LD )
 {
-	setRegister(dasm->rt, (s64)(emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate)));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 8)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readDword(off);
+	setRegister(dasm->rt, value);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -534,7 +595,8 @@ MIPS_INSTRUCTION( LDL )
 {
 	s64 final = 0;
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	for(i = 0; i < (vAddr % 8); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (64 - ((i + 1) * 8));
 	}
@@ -547,7 +609,8 @@ MIPS_INSTRUCTION( LDR )
 {
 	s64 final = 0;
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	for(i = 0; i < (vAddr % 8); i++) {
 		final |= emulatedCpu.readByte(vAddr + i) << (i * 8);
 	}
@@ -558,16 +621,26 @@ MIPS_INSTRUCTION( LDR )
 /* Load linked (word). */
 MIPS_INSTRUCTION( LL )
 {
-	/* I'm sure I need to do other things here... */
-	setRegister(dasm->rt, emulatedCpu.readWord(readRegister(dasm->rs) + dasm->immediate));
+	/* TODO: We need to make this atomic somehow >.> */
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 4)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readWord(off);
+	setRegister(dasm->rt, _signextend(value, value, 32, 64));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Load linked doubleword. */
 MIPS_INSTRUCTION( LLD )
 {
-	/* I'm sure I need to do other things here... */
-	setRegister(dasm->rt, emulatedCpu.readDword(readRegister(dasm->rs) + dasm->immediate));
+	/* TODO: We need to make this atomic somehow >.> */
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 8)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	s16 value = emulatedCpu.readDword(off);
+	setRegister(dasm->rt, value);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -578,21 +651,30 @@ MIPS_INSTRUCTION( LLD )
 /* Store byte. */
 MIPS_INSTRUCTION( SB )
 {
-	emulatedCpu.writeByte(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1 << 8) - 1));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	emulatedCpu.writeByte(readRegister(dasm->rs) + imm, readRegister(dasm->rt) & ((1 << 8) - 1));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Store word. */
 MIPS_INSTRUCTION( SH )
 {
-	emulatedCpu.writeHword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1LL << 32) - 1));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 2)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	emulatedCpu.writeHword(off, readRegister(dasm->rt) & ((1 << 16) - 1));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 			      
 /* Store word. */
 MIPS_INSTRUCTION( SW )
 {
-	emulatedCpu.writeWord(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt) & ((1LL << 32) - 1));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 4)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	emulatedCpu.writeWord(off, readRegister(dasm->rt) & ((1LL << 32) - 1));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -600,7 +682,8 @@ MIPS_INSTRUCTION( SW )
 MIPS_INSTRUCTION( SWL )
 {
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 4); i < 4; i++)
 		emulatedCpu.writeByte(vAddr + i, regval >> (32 - ((i + 1) * 4)));
@@ -611,7 +694,8 @@ MIPS_INSTRUCTION( SWL )
 MIPS_INSTRUCTION( SWR )
 {
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 4); i < 4; i++)
 		emulatedCpu.writeByte(vAddr + i, regval >> (i * 4));
@@ -621,7 +705,11 @@ MIPS_INSTRUCTION( SWR )
 /* Store doubleword. */
 MIPS_INSTRUCTION( SD )
 {
-	emulatedCpu.writeDword(readRegister(dasm->rs) + dasm->immediate, readRegister(dasm->rt));
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 off = readRegister(dasm->rs) + imm;
+	if(off % 8)
+		generateException(EXCEPTION_ADDRESS, dasm->delay);
+	emulatedCpu.writeDword(off, readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -629,7 +717,8 @@ MIPS_INSTRUCTION( SD )
 MIPS_INSTRUCTION( SDL )
 {
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 8); i < 8; i++)
 		emulatedCpu.writeByte(vAddr + i, regval >> (64 - ((i + 1) * 8)));
@@ -640,7 +729,8 @@ MIPS_INSTRUCTION( SDL )
 MIPS_INSTRUCTION( SDR )
 {
 	int i;
-	u64 vAddr = _signextend(readRegister(dasm->rs), readRegister(dasm->rs), 64) + dasm->immediate;
+	s64 imm = _signextend(dasm->immediate, dasm->immediate, 16, 64);
+	u64 vAddr = readRegister(dasm->rs) + imm;
 	u64 regval = readRegister(dasm->rt);
 	for(i = (vAddr % 8); i < 8; i++)
 		emulatedCpu.writeByte(vAddr + i, regval >> (i * 8));
@@ -655,6 +745,27 @@ MIPS_INSTRUCTION( SDR )
 MIPS_INSTRUCTION( MFC0 )
 {
 	cop0Handler(dasm);
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Move from coprocessor 1. */
+MIPS_INSTRUCTION( MFC1 )
+{
+	cop0Handler(dasm);			/* TODO: Handle proper cop */
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Move from coprocessor 2. */
+MIPS_INSTRUCTION( MFC2 )
+{
+	cop0Handler(dasm);			/* TODO: Handle proper cop */
+	advancePC(DEFAULT_INSTRUCTION_PC);
+}
+
+/* Move from coprocessor 3. */
+MIPS_INSTRUCTION( MFC3 )
+{
+	cop0Handler(dasm);			/* TODO: Handle proper cop */
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -687,7 +798,7 @@ MIPS_INSTRUCTION( NOOP )
 /* Syscall. */
 MIPS_INSTRUCTION( SYSCALL )
 {
-	generateException(8, dasm->delay);
+	generateException(EXCEPTION_SYSCALL, dasm->delay);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }	
 
@@ -696,8 +807,8 @@ MIPS_INSTRUCTION( SYSCALL )
 /*****************************************************************************/
 /* General table with all opcodes. */
 mipsInstrTbl instructionTable[] = {
-/*00*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*01*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*00*/	INST_ENTRY( NOOP,	"",		0 ),
+/*01*/	INST_ENTRY( NOOP,	"",		0 ),
 /*02*/	INST_ENTRY( J,		" %j",		1 ),
 /*03*/	INST_ENTRY( JAL,	" %j",		1 ),
 /*04*/	INST_ENTRY( BEQ,	" %s, %t, %i",	1 ),
@@ -713,9 +824,9 @@ mipsInstrTbl instructionTable[] = {
 /*0E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*0F*/	INST_ENTRY( LUI,	" %t, %i",	0 ),
 /*10*/	INST_ENTRY( MFC0,	" %t, %d",	0 ),
-/*11*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*12*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*13*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*11*/	INST_ENTRY( MFC1,	" %t, %d",	0 ),
+/*12*/	INST_ENTRY( MFC2,	" %t, %d",	0 ),
+/*13*/	INST_ENTRY( MFC3,	" %t, %d",	0 ),
 /*14*/	INST_ENTRY( BEQL,	" %s, %t, %i",	1 ), 
 /*15*/	INST_ENTRY( BNEL,	" %s, %t, %i",	1 ), 
 /*16*/	INST_ENTRY( BLEZL,	" %s, %i",	1 ), 
@@ -759,14 +870,7 @@ mipsInstrTbl instructionTable[] = {
 /*3C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*3D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*3E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*30*/	INST_ENTRY( SD,		" %t, %i(%s)",	0 ),
-/*40*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*41*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*42*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*43*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*44*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*45*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
-/*46*/	INST_ENTRY( NOOP,	"",		0 )			/* NOOP */
+/*3F*/	INST_ENTRY( SD,		" %t, %i(%s)",	0 ),
 };
 
 /* Special opcodes.
@@ -816,8 +920,28 @@ mipsInstrTbl specialInstructionTable[] = {
 /*28*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*29*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 /*2A*/	INST_ENTRY( SLT,	" %d, %s, %t",	0 ), 
-/*2B*/	INST_ENTRY( SLTU,	" %t, %s, %i",	0 )
-};	
+/*2B*/	INST_ENTRY( SLTU,	" %t, %s, %i",	0 ), 
+/*2C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*2D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*2E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*2F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*30*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*31*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*32*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*33*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*34*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*35*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*36*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*37*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*38*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*39*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3A*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3B*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*3F*/	INST_ENTRY( NOOP,	"",		0 )			/* NOOP */
+};
 
 /* Regimm opcodes.
  * The first six bits are 000001 and the instruction is encoded in the t register space. */
@@ -843,7 +967,18 @@ mipsInstrTbl regimmInstructionTable[] = {
 /*11*/	INST_ENTRY( BGEZAL,	" %s, %i",	1 ), 
 /*12*/	INST_ENTRY( BLTZALL,	" %s, %i",	1 ), 
 /*13*/	INST_ENTRY( BGEZALL,	" %s, %i",	1 ), 
-/*14*/	INST_ENTRY( NOOP,	"",		0 )			/* NOOP */
+/*14*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*15*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*16*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*17*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*18*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*19*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1A*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1B*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1C*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1D*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1E*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
+/*1F*/	INST_ENTRY( NOOP,	"",		0 ),			/* NOOP */
 };
 
 void execOpcode(mipsDasm *dasm)
