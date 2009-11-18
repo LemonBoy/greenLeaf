@@ -120,7 +120,7 @@ u8 readByte(u32 address)
 		generateException(4, 0);
 		exit(1);
 	}
-	return bank->memory[(address ^ bank->addrStart)];
+	return bank->memory[(address - bank->addrStart)];
 }
 
 void writeByte(u32 address, u8 value)
@@ -131,7 +131,7 @@ void writeByte(u32 address, u8 value)
 		generateException(5, 0);
 		exit(1);
 	}	
-	bank->memory[(address ^ bank->addrStart)] = value;
+	bank->memory[(address - bank->addrStart)] = value;
 }
 
 /*

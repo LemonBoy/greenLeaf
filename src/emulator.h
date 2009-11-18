@@ -22,7 +22,12 @@
 #define IMMEDIATE(opcode)	(opcode & 0xFFFF)
 #define JUMP(opcode)		(opcode & 0x3FFFFFF)
 
+/* TODO: These need to be changed to the proper values!
+ * Also, any thing calling generateException should use these! */
 #define EXCEPTION_ADDRESS	0
+#define EXCEPTION_BREAKPOINT	1
+#define EXCEPTION_RESERVED	2
+#define EXCEPTION_TRAP		3
 #define EXCEPTION_SYSCALL	8
 
 typedef struct {

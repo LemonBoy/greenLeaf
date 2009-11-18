@@ -109,17 +109,17 @@ void initializeCPU(u8 endian, u32 stackPtr)
 	int reg;
 	
 	for(reg = 0; reg < 34; reg++) {
-		emulatedCpu.r[reg] = 0x0;
+		emulatedCpu.r[reg] = 0LL;
 		if(reg == 29)
-			emulatedCpu.r[reg] = stackPtr;
+			emulatedCpu.r[reg] = 0LL + stackPtr;
 	}
 	
 	for(reg = 0; reg < 32; reg++)
-		emulatedCpu.cop0[reg] = 0x0;
+		emulatedCpu.cop0[reg] = 0LL;
 	
 	emulatedCpu.pc = 0;
 	emulatedCpu.nPc = 0;
-	emulatedCpu.bOpcode = 0;
+	emulatedCpu.bOpcode = 0LL;
 	
 	emulatedCpu.endian = endian;
 	
@@ -214,7 +214,7 @@ void generateException(u32 exception, u32 delay)
 		resetVectorAddress += 0x180;
 	}
 	
-	printf("Jumping to the reset vector at 0x%016x\n", resetVectorAddress);
+	printf("Jumping to the reset vector at 0x%016llX\n", resetVectorAddress);
 	
 	setPC(resetVectorAddress);
 }
