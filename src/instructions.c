@@ -78,7 +78,7 @@ MIPS_INSTRUCTION( ADD )
 {
 	s32 val = readRegister(dasm->rs) + readRegister(dasm->rt);
 	s64 out = _signextend(val, 32, 64);
-	setRegister(dasm->rt, out);
+	setRegister(dasm->rd, out);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -87,7 +87,7 @@ MIPS_INSTRUCTION( ADDU )
 {
 	u32 val = readRegister(dasm->rs) + readRegister(dasm->rt);
 	u64 out = _zeroextend(val, 32, 64);
-	setRegister(dasm->rt, out);
+	setRegister(dasm->rd, out);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -97,7 +97,7 @@ MIPS_INSTRUCTION( ADDI )
 	s64 imm = _signextend(dasm->immediate, 16, 64);
 	s32 val = readRegister(dasm->rs) + imm;
 	s64 out = _signextend(val, 32, 64);
-	setRegister(dasm->rt, out);
+	setRegister(dasm->rd, out);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -115,7 +115,7 @@ MIPS_INSTRUCTION( ADDIU )
 MIPS_INSTRUCTION( DADD )
 {
 	s64 val = readRegister(dasm->rs) + readRegister(dasm->rt);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -123,7 +123,7 @@ MIPS_INSTRUCTION( DADD )
 MIPS_INSTRUCTION( DADDU )
 {
 	u64 val = readRegister(dasm->rs) + readRegister(dasm->rt);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -150,7 +150,7 @@ MIPS_INSTRUCTION( SUB )
 {
 	s32 tmp = readRegister(dasm->rs) - readRegister(dasm->rt);
 	s64 val = _signextend(tmp, 32, 64);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -159,7 +159,7 @@ MIPS_INSTRUCTION( SUBU )
 {
 	u32 tmp = readRegister(dasm->rs) - readRegister(dasm->rt);
 	u64 val = _zeroextend(tmp, 32, 64);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -167,7 +167,7 @@ MIPS_INSTRUCTION( SUBU )
 MIPS_INSTRUCTION( DSUB )
 {
 	s64 val = readRegister(dasm->rs) - readRegister(dasm->rt);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -175,7 +175,7 @@ MIPS_INSTRUCTION( DSUB )
 MIPS_INSTRUCTION( DSUBU )
 {
 	u64 val = readRegister(dasm->rs) - readRegister(dasm->rt);
-	setRegister(dasm->rt, val);
+	setRegister(dasm->rd, val);
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
