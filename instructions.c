@@ -15,13 +15,12 @@ void cop0Handler(mipsDasm *dasm)
 	switch(dasm->rs) {
 		case 0x0:
 			setRegister(dasm->rt, readCop0Register(dasm->rd));
+			advancePC(DEFAULT_INSTRUCTION_PC);
 			break;
 		case 0x4:
 			setCop0Register(dasm->rd, (u32)(dasm->rt));
 			break;
 	}
-	
-	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 static mipsRegister _signextend(mipsRegister_u input, mipsRegister_u sign, int origsize, int newsize)
@@ -763,12 +762,18 @@ MIPS_INSTRUCTION( MFLO )
 /* No-operation. */
 MIPS_INSTRUCTION( NOOP )
 {
+#ifdef DEBUG
+	exit(-6);
+#endif
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Reserved No Operation (holds place for reserved slots). */
 MIPS_INSTRUCTION( RNOP )
 {
+#ifdef DEBUG
+	exit(-6);
+#endif
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
@@ -785,6 +790,9 @@ MIPS_INSTRUCTION( SYSCALL )
 /* No-operation. */
 MIPS_COP_INSTRUCTION( NOOP )
 {
+#ifdef DEBUG
+	exit(-6);
+#endif
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
