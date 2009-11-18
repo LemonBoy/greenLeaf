@@ -60,6 +60,10 @@ char *dasmFormat(char *haystack, mipsDasm *dasm)
 					len = strlen(fmtBuf);
 					break;
 			}
+		}else if (*hptr == 'z') {
+			sprintf(fmtBuf, "%u", dasm->funct & 0x3);
+			strcpy(&(*fptr), fmtBuf);
+			len = strlen(fmtBuf);
 		}else{
 			*fptr = *hptr;
 		}

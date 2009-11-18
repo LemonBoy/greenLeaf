@@ -14,10 +14,10 @@ void cop0Handler(mipsDasm *dasm)
 {
 	switch(readRegister(dasm->rs)) {
 		case 0x0:
-			setRegister(dasm->rt, readCop0Register(dasm->rd));
+			setRegister(dasm->rt, readCopRegister(0, dasm->rd));
 			break;
 		case 0x4:
-			setCop0Register(dasm->rd, (u32)(dasm->rt));
+			setCopRegister(0, dasm->rd, (u32)(dasm->rt));
 			break;
 	}
 	
@@ -28,10 +28,10 @@ void copxHandler(mipsDasm *dasm)
 {
 	switch(readRegister(dasm->rs)) {
 		case 0x0:
-			setRegister(dasm->rt, readCop0Register(dasm->rd));
+			setRegister(dasm->rt, readCopRegister(0, dasm->rd));
 			break;
 		case 0x4:
-			setCop0Register(dasm->rd, (u32)(dasm->rt));
+			setCopRegister(0, dasm->rd, (u32)(dasm->rt));
 			break;
 	}
 	
@@ -1318,20 +1318,14 @@ MIPS_INSTRUCTION( SWC2 )
 /* Move from coprocessor z. */
 MIPS_COP_INSTRUCTION( MFCz )
 {
-#ifdef DEBUG
-	printf("Instruction MFC%d unsupported!\n", cop);
-#endif
-	/* TODO: Implement */
+	setRegister(dasm->rt, readCopRegister(cop, dasm->rd));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 
 /* Move to coprocessor z. */
 MIPS_COP_INSTRUCTION( MTCz )
 {
-#ifdef DEBUG
-	printf("Instruction MTC%d unsupported!\n", cop);
-#endif
-	/* TODO: Implement */
+	setCopRegister(cop, dasm->rd, readRegister(dasm->rt));
 	advancePC(DEFAULT_INSTRUCTION_PC);
 }
 

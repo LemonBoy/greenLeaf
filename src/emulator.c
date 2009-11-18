@@ -28,20 +28,20 @@ mipsRegister readRegister(mipsReg reg)
 	return emulatedCpu.r[reg];
 }
 
-void setCop0Register(mipsReg reg, mipsRegister value)
+void setCopRegister(u8 copNumber, mipsReg reg, mipsRegister value)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Write 0x%016llX in cop0[%u]\n", value, reg);
+	printf("Cop%i -> Write 0x%016llX in cop%i[%u]\n", copNumber, value, copNumber, reg);
 #endif
-	emulatedCpu.cop0[reg] = value;
+	emulatedCpu.cr[reg][copNumber] = value;
 }
 
-mipsRegister readCop0Register(mipsReg reg)
+mipsRegister readCopRegister(u8 copNumber, mipsReg reg)
 {
 #ifdef DEBUG
-	printf("Cop0 -> Read cop0[%u]: 0x%016llX\n", reg, emulatedCpu.cop0[reg]);
+	printf("Cop%i -> Read cop%i[%u]: 0x%016llX\n", copNumber, copNumber, reg, emulatedCpu.cr[reg][copNumber]);
 #endif	
-	return emulatedCpu.cop0[reg];
+	return emulatedCpu.cr[reg][copNumber];
 }
 
 void advancePC(mipsRegister nextPC)
@@ -91,11 +91,13 @@ mipsRegister getPC()
 
 void printRegisters()
 {
-	int reg;
+	int reg, cop;
 	
 	for(reg = 0; reg < 32; reg++)
-		printf( "%s: 0x%016llX\tCOP0 %2d: 0x%016llX\n", \
-			registerToName(reg), emulatedCpu.r[reg], reg, emulatedCpu.cop0[reg]);
+		printf("%s: 0x%016llX\n", registerToName(reg), emulatedCpu.r[reg]);
+	for(cop = 0; cop < 3; cop++)
+		for(reg = 0; reg < 32; reg++) 
+			printf("COP%i %02u: 0x%016llX\n", cop, reg, emulatedCpu.cr[reg][cop]);
 	printf("HI: 0x%016llX\tLO:      0x%016llX\n", emulatedCpu.r[REGISTER_HI], emulatedCpu.r[REGISTER_LO]);
 	printf("PC: 0x%08X\tNext PC: 0x%08X\n", emulatedCpu.pc, emulatedCpu.nPc);
 }
@@ -106,7 +108,7 @@ void printRegisters()
 
 void initializeCPU(u8 endian, u32 stackPtr)
 {
-	int reg;
+	int reg, cop;
 	
 	for(reg = 0; reg < 34; reg++) {
 		emulatedCpu.r[reg] = 0LL;
@@ -114,8 +116,9 @@ void initializeCPU(u8 endian, u32 stackPtr)
 			emulatedCpu.r[reg] = 0LL + stackPtr;
 	}
 	
-	for(reg = 0; reg < 32; reg++)
-		emulatedCpu.cop0[reg] = 0LL;
+	for(cop = 0; cop < 3; cop++)
+		for(reg = 0; reg < 32; reg++)
+			emulatedCpu.cr[reg][cop] = 0LL;
 	
 	emulatedCpu.pc = 0;
 	emulatedCpu.nPc = 0;
@@ -193,18 +196,18 @@ void generateException(u32 exception, u32 delay)
 	
 	printf("Caught exception 0x%08X\n", exception);
 
-	setCop0Register(COP0_REG_EPC, emulatedCpu.pc);
-	setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0xFFFFFFFFFFFFFF00) | (exception << 2));
+	setCopRegister(0, COP0_REG_EPC, emulatedCpu.pc);
+	setCopRegister(0, COP0_REG_CAUSE, (readCopRegister(0, COP0_REG_CAUSE) & 0xFFFFFFFFFFFFFF00) | (exception << 2));
 
 	if (delay) {
-		setCop0Register(COP0_REG_EPC, readCop0Register(COP0_REG_EPC) - 4);
+		setCopRegister(0, COP0_REG_EPC, readCopRegister(0, COP0_REG_EPC) - 4);
 		/* Set the BV bit in the CAUSE register if we are in a branch delay */
-		setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0x0FFFFFFFFFFFFF00) | ((mipsRegister)1 << 63));
+		setCopRegister(0, COP0_REG_CAUSE, (readCopRegister(0, COP0_REG_CAUSE) & 0x3FFFFFFFFFFFFF00) | ((mipsRegister)1 << 63));
 	} else {
-		setCop0Register(COP0_REG_CAUSE, (readCop0Register(COP0_REG_CAUSE) & 0x0FFFFFFFFFFFFF00) | ((mipsRegister)0 << 63));
+		setCopRegister(0, COP0_REG_CAUSE, (readCopRegister(0, COP0_REG_CAUSE) & 0x3FFFFFFFFFFFFF00) | ((mipsRegister)0 << 63));
 	}
 	
-	if (readCop0Register(COP0_REG_STATUS) & 0x200000) { /* BEV bit is set. */
+	if (readCopRegister(0, COP0_REG_STATUS) & 0x200000) { /* BEV bit is set. */
 		resetVectorAddress = RESET_VECTOR_BEV_1;
 	} else {
 		resetVectorAddress = RESET_VECTOR_BEV_0;

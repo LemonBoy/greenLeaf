@@ -38,7 +38,7 @@ typedef struct {
 	u32 nPc;
 	/* Registers */
 	mipsRegister r[34];
-	mipsRegister cop0[32];	
+	mipsRegister cr[32][3];
 	/* Ram accessors. */
 	u8  endian;
 	
@@ -69,8 +69,8 @@ void		executeOpcode	 (u32 opcode);
 void		printRegisters	 ();
 void		generateException(u32 exception, u32 delay);
 
-void		setCop0Register	(mipsReg reg, mipsRegister value);
-mipsRegister	readCop0Register(mipsReg reg);
+void		setCopRegister	(u8 copNumber, mipsReg reg, mipsRegister value);
+mipsRegister 	readCopRegister	(u8 copNumber, mipsReg reg);
 
 mipsRegister	getPC		();
 mipsRegister	getNextPC	();
