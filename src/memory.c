@@ -4,16 +4,13 @@
 #include "memory.h"
 #include "emulator.h"
 
-mipsMappedMemory *rootBank    = NULL;
-mipsMappedMemory *mappedBanks = NULL;
+int checkBankOverlap(mipsCpu* cpu, u32 address, u32 size);
 
-int checkBankOverlap(u32 address, u32 size);
-
-int mapMemory(u32 start, u32 size, u8 flags)
+int mapMemory(mipsCpu* cpu, u32 start, u32 size, u8 flags)
 {
 	mipsMappedMemory *newMappedMem = malloc(sizeof(mipsMappedMemory));
 
-	if(checkBankOverlap(start, size))
+	if(checkBankOverlap(cpu, start, size))
 		return -1;
 	
 	newMappedMem->addrStart = start;
@@ -32,22 +29,22 @@ int mapMemory(u32 start, u32 size, u8 flags)
 #endif		
 	
 	newMappedMem->next = NULL;
-	if(mappedBanks == NULL) {
-		mappedBanks = newMappedMem;
-		mappedBanks->next = NULL;
-		rootBank = mappedBanks;
+	if(cpu->mappedBanks == NULL) {
+		cpu->mappedBanks = newMappedMem;
+		cpu->mappedBanks->next = NULL;
+		cpu->rootBank = cpu->mappedBanks;
 	}else{
-		mappedBanks->next = newMappedMem;
-		mappedBanks = newMappedMem;
-		mappedBanks->next = NULL;
+		cpu->mappedBanks->next = newMappedMem;
+		cpu->mappedBanks = newMappedMem;
+		cpu->mappedBanks->next = NULL;
 	}
 	
 	return 1;
 }
 
-int checkBankOverlap(u32 address, u32 size)
+int checkBankOverlap(mipsCpu* cpu, u32 address, u32 size)
 {
-	mipsMappedMemory *ptr = rootBank;
+	mipsMappedMemory *ptr = cpu->rootBank;
 	
 	while(ptr != NULL) {
 		if(address >= ptr->addrStart)
@@ -59,9 +56,9 @@ int checkBankOverlap(u32 address, u32 size)
 	return 0;
 }
 
-mipsMappedMemory *getBank(u32 address, u32 size, int access)
+mipsMappedMemory *getBank(mipsCpu* cpu, u32 address, u32 size, int access)
 {
-	mipsMappedMemory *ptr = rootBank;
+	mipsMappedMemory *ptr = cpu->rootBank;
 #ifdef DEBUG
 #ifdef HYPERDEBUG
 	printf("Searching bank for address 0x%08X\n", address);
@@ -86,22 +83,24 @@ mipsMappedMemory *getBank(u32 address, u32 size, int access)
 	return NULL;
 }	
 
-void changeFlag(u32 address, u8 newFlag)
+void changeFlag(mipsCpu* cpu, u32 address, u8 newFlag)
 {
-	mipsMappedMemory *ptr = getBank(address, 0, 0);
+	mipsMappedMemory *ptr = getBank(cpu, address, 0, 0);
 	ptr->flags = newFlag;
 }
 	
-void unmapMemory()
+void unmapMemory(mipsCpu* cpu)
 {
-	mipsMappedMemory *ptr = rootBank;
+	mipsMappedMemory *ptr = cpu->rootBank;
 	
-	while (ptr != NULL) {
-		free(ptr->memory);		
+	while(ptr != NULL) {
+		free(ptr->memory);
+		ptr->memory = NULL;
 		ptr = ptr->next;
 	}
 	
-	free(rootBank);
+	free(cpu->rootBank);
+	cpu->rootBank = NULL;
 }
 
 /*
@@ -112,23 +111,23 @@ void unmapMemory()
  * Not endian functions.
  */
 
-u8 readByte(u32 address)
+u8 readByte(mipsCpu* cpu, u32 address)
 {
-	mipsMappedMemory *bank = getBank(address, sizeof(u8), 1);
+	mipsMappedMemory *bank = getBank(cpu, address, sizeof(u8), 1);
 	if (bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
-		generateException(4, 0);
+		generateException(cpu, 4, 0);
 		exit(1);
 	}
 	return bank->memory[(address - bank->addrStart)];
 }
 
-void writeByte(u32 address, u8 value)
+void writeByte(mipsCpu* cpu, u32 address, u8 value)
 {
-	mipsMappedMemory *bank = getBank(address, sizeof(u8), 2);
+	mipsMappedMemory *bank = getBank(cpu, address, sizeof(u8), 2);
 	if (bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
-		generateException(5, 0);
+		generateException(cpu, 5, 0);
 		exit(1);
 	}	
 	bank->memory[(address - bank->addrStart)] = value;
@@ -138,150 +137,150 @@ void writeByte(u32 address, u8 value)
  * Read access.
  */
 
-u8 readByteLE(u32 address)
+u8 readByteLE(mipsCpu* cpu, u32 address)
 {
-	return readByte(address);
+	return readByte(cpu, address);
 }
 
-u16 readHwordLE(u32 address)
+u16 readHwordLE(mipsCpu* cpu, u32 address)
 {
-	return	(readByte(address) <<  8) |
-		(readByte(address + 1) <<  0) ;
+	return	(readByte(cpu, address + 0) <<  8) |
+		(readByte(cpu, address + 1) <<  0) ;
 }
 
-u32 readWordLE(u32 address)
+u32 readWordLE(mipsCpu* cpu, u32 address)
 {
-	return	(readByte(address) << 24) |
-		(readByte(address + 1) << 16) |
-		(readByte(address + 2) <<  8) |
-		(readByte(address + 3) <<  0) ;
+	return	(readByte(cpu, address + 0) << 24) |
+		(readByte(cpu, address + 1) << 16) |
+		(readByte(cpu, address + 2) <<  8) |
+		(readByte(cpu, address + 3) <<  0) ;
 }
 
-u64 readDwordLE(u32 address)
+u64 readDwordLE(mipsCpu* cpu, u32 address)
 {
-	return	((u64)readByte(address) << 56) |
-		((u64)readByte(address + 1) << 48) |
-		((u64)readByte(address + 2) << 40) |
-		((u64)readByte(address + 3) << 32) |
-		((u64)readByte(address + 4) << 24) |
-		((u64)readByte(address + 5) << 16) |
-		((u64)readByte(address + 6) <<  8) |
-		((u64)readByte(address + 7) <<  0) ;	
+	return	((u64)readByte(cpu, address + 0) << 56) |
+		((u64)readByte(cpu, address + 1) << 48) |
+		((u64)readByte(cpu, address + 2) << 40) |
+		((u64)readByte(cpu, address + 3) << 32) |
+		((u64)readByte(cpu, address + 4) << 24) |
+		((u64)readByte(cpu, address + 5) << 16) |
+		((u64)readByte(cpu, address + 6) <<  8) |
+		((u64)readByte(cpu, address + 7) <<  0) ;	
 }
 
-u8 readByteBE(u32 address)
+u8 readByteBE(mipsCpu* cpu, u32 address)
 {
-	return readByte(address);
+	return readByte(cpu, address);
 }
 
-u16 readHwordBE(u32 address)
+u16 readHwordBE(mipsCpu* cpu, u32 address)
 {
-	return	(readByte(address + 1) <<  8) |
-		(readByte(address) <<  0);
+	return	(readByte(cpu, address + 1) <<  8) |
+		(readByte(cpu, address + 0) <<  0);
 }
 
-u32 readWordBE(u32 address)
+u32 readWordBE(mipsCpu* cpu, u32 address)
 {
-	return	(readByte(address + 3) << 24) |
-		(readByte(address + 2) << 16) |
-		(readByte(address + 1) <<  8) |
-		(readByte(address) <<  0) ;
+	return	(readByte(cpu, address + 3) << 24) |
+		(readByte(cpu, address + 2) << 16) |
+		(readByte(cpu, address + 1) <<  8) |
+		(readByte(cpu, address + 0) <<  0) ;
 }
 
-u64 readDwordBE(u32 address)
+u64 readDwordBE(mipsCpu* cpu, u32 address)
 {
-	return	((u64)readByte(address + 7) << 56) |
-		((u64)readByte(address + 6) << 48) |
-		((u64)readByte(address + 5) << 40) |
-		((u64)readByte(address + 4) << 32) |
-		((u64)readByte(address + 3) << 24) |
-		((u64)readByte(address + 2) << 16) |
-		((u64)readByte(address + 1) <<  8) |
-		((u64)readByte(address) <<  0) ;	
+	return	((u64)readByte(cpu, address + 7) << 56) |
+		((u64)readByte(cpu, address + 6) << 48) |
+		((u64)readByte(cpu, address + 5) << 40) |
+		((u64)readByte(cpu, address + 4) << 32) |
+		((u64)readByte(cpu, address + 3) << 24) |
+		((u64)readByte(cpu, address + 2) << 16) |
+		((u64)readByte(cpu, address + 1) <<  8) |
+		((u64)readByte(cpu, address + 0) <<  0) ;	
 }
 
 /*
  * Write access.
  */
 
-void writeByteLE(u32 address, u8 value)
+void writeByteLE(mipsCpu* cpu, u32 address, u8 value)
 {
-	writeByte(address, value);
+	writeByte(cpu, address, value);
 }
 
-void writeHwordLE(u32 address, u16 value)
+void writeHwordLE(mipsCpu* cpu, u32 address, u16 value)
 {
-	writeByte(address, (u8)(value >> 8));
-	writeByte(address + 1, (u8)(value >> 0));
+	writeByte(cpu, address + 0, (u8)(value >> 8));
+	writeByte(cpu, address + 1, (u8)(value >> 0));
 }
 
-void writeWordLE(u32 address, u32 value)
+void writeWordLE(mipsCpu* cpu, u32 address, u32 value)
 {
-	writeByte(address, (u8)(value >> 24));
-	writeByte(address + 1, (u8)(value >> 16));
-	writeByte(address + 2, (u8)(value >> 8 ));
-	writeByte(address + 3, (u8)(value >> 0 ));
+	writeByte(cpu, address + 0, (u8)(value >> 24));
+	writeByte(cpu, address + 1, (u8)(value >> 16));
+	writeByte(cpu, address + 2, (u8)(value >> 8 ));
+	writeByte(cpu, address + 3, (u8)(value >> 0 ));
 }
 
-void writeDwordLE(u32 address, u64 value)
+void writeDwordLE(mipsCpu* cpu, u32 address, u64 value)
 {
-	writeByte(address, (u8)(value >> 56));
-	writeByte(address + 1, (u8)(value >> 48));
-	writeByte(address + 2, (u8)(value >> 40));
-	writeByte(address + 3, (u8)(value >> 32));
-	writeByte(address + 4, (u8)(value >> 24));
-	writeByte(address + 5, (u8)(value >> 16));
-	writeByte(address + 6, (u8)(value >> 8 ));
-	writeByte(address + 7, (u8)(value >> 0 ));	
+	writeByte(cpu, address + 0, (u8)(value >> 56));
+	writeByte(cpu, address + 1, (u8)(value >> 48));
+	writeByte(cpu, address + 2, (u8)(value >> 40));
+	writeByte(cpu, address + 3, (u8)(value >> 32));
+	writeByte(cpu, address + 4, (u8)(value >> 24));
+	writeByte(cpu, address + 5, (u8)(value >> 16));
+	writeByte(cpu, address + 6, (u8)(value >> 8 ));
+	writeByte(cpu, address + 7, (u8)(value >> 0 ));	
 }
 
-void writeByteBE(u32 address, u8 value)
+void writeByteBE(mipsCpu* cpu, u32 address, u8 value)
 {
-	writeByte(address, value);
+	writeByte(cpu, address, value);
 }
 
-void writeHwordBE(u32 address, u16 value)
+void writeHwordBE(mipsCpu* cpu, u32 address, u16 value)
 {
-	writeByte(address + 1, (u8)(value >> 8));
-	writeByte(address, (u8)(value >> 0));
+	writeByte(cpu, address + 1, (u8)(value >> 8));
+	writeByte(cpu, address + 0, (u8)(value >> 0));
 }
 
-void writeWordBE(u32 address, u32 value)
+void writeWordBE(mipsCpu* cpu, u32 address, u32 value)
 {
-	writeByte(address + 3, (u8)(value >> 24));
-	writeByte(address + 2, (u8)(value >> 16));
-	writeByte(address + 1, (u8)(value >> 8 ));
-	writeByte(address, (u8)(value >> 0 ));
+	writeByte(cpu, address + 3, (u8)(value >> 24));
+	writeByte(cpu, address + 2, (u8)(value >> 16));
+	writeByte(cpu, address + 1, (u8)(value >> 8 ));
+	writeByte(cpu, address + 0, (u8)(value >> 0 ));
 }
 
-void writeDwordBE(u32 address, u64 value)
+void writeDwordBE(mipsCpu* cpu, u32 address, u64 value)
 {
-	writeByte(address + 7, (u8)(value >> 56));
-	writeByte(address + 6, (u8)(value >> 48));
-	writeByte(address + 5, (u8)(value >> 40));
-	writeByte(address + 4, (u8)(value >> 32));
-	writeByte(address + 3, (u8)(value >> 24));
-	writeByte(address + 2, (u8)(value >> 16));
-	writeByte(address + 1, (u8)(value >> 8 ));
-	writeByte(address, (u8)(value >> 0 ));	
+	writeByte(cpu, address + 7, (u8)(value >> 56));
+	writeByte(cpu, address + 6, (u8)(value >> 48));
+	writeByte(cpu, address + 5, (u8)(value >> 40));
+	writeByte(cpu, address + 4, (u8)(value >> 32));
+	writeByte(cpu, address + 3, (u8)(value >> 24));
+	writeByte(cpu, address + 2, (u8)(value >> 16));
+	writeByte(cpu, address + 1, (u8)(value >> 8 ));
+	writeByte(cpu, address + 0, (u8)(value >> 0 ));	
 }
 
 /*
  * Simple memory copy.
  */
 
-void memcopy(void *src, u32 address, int size)
+void memcopy(mipsCpu* cpu, void *src, u32 address, int size)
 {
 	int x;
 	u8* s = src;
 	for (x = 0; x < size; x++, s++)
-		writeByte(address + x, *s);
+		writeByte(cpu, address + x, *s);
 }
 
-void memoryset(u32 address, u8 fill, int size)
+void memoryset(mipsCpu* cpu, u32 address, u8 fill, int size)
 {
 	int x;
 	
 	for (x = 0; x < size; x++, address++)
-		writeByte(address, fill);
+		writeByte(cpu, address, fill);
 }

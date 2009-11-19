@@ -2,7 +2,8 @@
 #define _BINARY_H
 
 #include "types.h"
+#include "emulator.h"
 
-u32 openElf(char *path, u32 baseaddr);
+u32 openElf(mipsCpu* cpu, char *path, u32 baseaddr);
 
 #endif

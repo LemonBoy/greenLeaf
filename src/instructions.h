@@ -19,7 +19,7 @@ extern mipsInstrTbl    regimmInstructionTable[];
 extern mipsInstrTbl    specialInstructionTable[];
 extern mipsInstrTbl    instructionTable[];
 
-void execOpcode(mipsDasm *dasm);
-char* textOpcode(mipsDasm *dasm);
+void execOpcode(mipsCpu* cpu, mipsDasm *dasm);
+char* textOpcode(mipsCpu* cpu, mipsDasm *dasm);
 
 #endif

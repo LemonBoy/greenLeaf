@@ -11,8 +11,8 @@
 #define UART_REG_MSR  	 6
 #define UART_REG_SCR 	 7
 
-int setupUart(u32 baseAddr);
-u8 readUartByte();
-void writeUartByte();
+int setupUart(mipsCpu* cpu, u32 baseAddr);
+u8 readUartByte(mipsCpu* cpu);
+void writeUartByte(mipsCpu* cpu);
 
 #endif

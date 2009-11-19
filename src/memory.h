@@ -2,6 +2,7 @@
 #define _MEMORY_H
 
 #include "types.h"
+#include "emulator.h"
 
 /* Defines */
 
@@ -10,8 +11,7 @@
 
 /* Structs */
 
-typedef struct _mipsMappedMemory
-{
+typedef struct _mipsMappedMemory {
 	u32 addrStart;
 	u32 addrEnd;
 	u32 size;
@@ -22,31 +22,31 @@ typedef struct _mipsMappedMemory
 
 /* Prototypes */
 
-int mapMemory(u32 start, u32 size, u8 flags);
-void changeFlag(u32 address, u8 newFlag);
-void unmapMemory();
+int mapMemory    (mipsCpu* cpu, u32 start, u32 size, u8 flags);
+void changeFlag  (mipsCpu* cpu, u32 address, u8 newFlag);
+void unmapMemory (mipsCpu* cpu);
 
-void memcopy(void *src, u32 address, int size);
-void memoryset(u32 address, u8 fill, int size);
+void memcopy     (mipsCpu* cpu, void *src, u32 address, int size);
+void memoryset   (mipsCpu* cpu, u32 address, u8 fill, int size);
 
-u8 readByteLE(u32 address);
-u16 readHwordLE(u32 address);
-u32 readWordLE(u32 address);
-u64 readDwordLE(u32 address);
+u8  readByteLE   (mipsCpu* cpu, u32 address);
+u16 readHwordLE  (mipsCpu* cpu, u32 address);
+u32 readWordLE   (mipsCpu* cpu, u32 address);
+u64 readDwordLE  (mipsCpu* cpu, u32 address);
 
-u8 readByteBE(u32 address);
-u16 readHwordBE(u32 address);
-u32 readWordBE(u32 address);
-u64 readDwordBE(u32 address);
+u8  readByteBE   (mipsCpu* cpu, u32 address);
+u16 readHwordBE  (mipsCpu* cpu, u32 address);
+u32 readWordBE   (mipsCpu* cpu, u32 address);
+u64 readDwordBE  (mipsCpu* cpu, u32 address);
 
-void writeByteLE(u32 address, u8 value);
-void writeHwordLE(u32 address, u16 value);
-void writeWordLE(u32 address, u32 value);
-void writeDwordLE(u32 address, u64 value);
+void writeByteLE (mipsCpu* cpu, u32 address, u8  value);
+void writeHwordLE(mipsCpu* cpu, u32 address, u16 value);
+void writeWordLE (mipsCpu* cpu, u32 address, u32 value);
+void writeDwordLE(mipsCpu* cpu, u32 address, u64 value);
 
-void writeByteBE(u32 address, u8 value);
-void writeHwordBE(u32 address, u16 value);
-void writeWordBE(u32 address, u32 value);
-void writeDwordBE(u32 address, u64 value);
+void writeByteBE (mipsCpu* cpu, u32 address, u8  value);
+void writeHwordBE(mipsCpu* cpu, u32 address, u16 value);
+void writeWordBE (mipsCpu* cpu, u32 address, u32 value);
+void writeDwordBE(mipsCpu* cpu, u32 address, u64 value);
 
 #endif

@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 {
 	char* filename;
 	s32 ret;
+	mipsCpu* cpu;
 	
 	printf("greenLeaf 0.1\n");
 	printf("mips emulator by The Lemon Man and SquidMan\n");
@@ -60,35 +61,33 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
 	printf("Debug mode enabled\n");
 #endif
+	printf("Initializing the CPU core...\n");
+	cpu = initializeCPU(ENDIANNESS_LE, 0x80000000);
+	
 	printf("Mapping the ram...\n");
 	
-	printf("Main memory %d\n",	mapMemory(0x80000000, 0x40000, FLAG_RAM));
-	printf("Reset vector %d\n",	mapMemory(0xBFC00000, 0x40000, FLAG_RAM));
-	printf("Addictional mem %d\n",	mapMemory(0xA0000010, 0x02000, FLAG_RAM));
+	printf("Main memory %d\n",	mapMemory(cpu, 0x80000000, 0x40000, FLAG_RAM));
+	printf("Reset vector %d\n",	mapMemory(cpu, 0xBFC00000, 0x40000, FLAG_RAM));
+	printf("Addictional mem %d\n",	mapMemory(cpu, 0xA0000010, 0x02000, FLAG_RAM));
 	
-	printf("Initializing the CPU core...\n");
-	initializeCPU(ENDIANNESS_LE, 0x80000000);
-
-	ret = openElf(filename, 0xBFC00000);
+	ret = openElf(cpu, filename, 0xBFC00000);
 
 	printf("Entry %#x\n",	(u32)ret);
 	
-	printf("Uart %i\n",	setupUart(0xB40003F0));
+	printf("Uart %i\n",	setupUart(cpu, 0xB40003F0));
 	
-	setPC(0xBFC00000);
-	
-//	readByte(0x01);
+	setPC(cpu, 0xBFC00000);
 	
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {
 		fgetc(stdin);
-		runProcessor();
-//		printRegisters();
+		runProcessor(cpu);
+//		printRegisters(cpu);
 	}
 	
 	printf("Execution finished... unmapping the ram\n");
-	unmapMemory();
+	unmapMemory(cpu);
 	free(filename);
 	return 1;
 }

@@ -1,6 +1,9 @@
 #ifndef _DASM_H
 #define _DASM_H
 
+#include "types.h"
+#include "emulator.h"
+
 typedef struct {
 	u8 delay;
 	u8 instruction;
@@ -14,13 +17,13 @@ typedef struct {
 } mipsDasm;
 
 typedef struct {
-	mipsInstruction (*execute)(mipsDasm *dasm);
+	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm);
 	char textDisasm[20];
 	u8 delay;
 } mipsInstrTbl;
 
 typedef struct {
-	mipsInstruction (*execute)(mipsDasm *dasm, int cop);
+	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm, int cop);
 	char textDisasm[20];
 	u8 delay;
 } mipsCopInstrTbl;
@@ -36,6 +39,6 @@ char *registerName[34];
 
 char* registerToName(mipsRegister reg);
 char* dasmFormat(char *haystack, mipsDasm *dasm);
-void dasmOpcode(u32 opcode, mipsDasm **ret);
+void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm **ret);
 
 #endif

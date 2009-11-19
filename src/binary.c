@@ -3,6 +3,7 @@
 #include <string.h>
 #include "memory.h"
 #include "elf_eabi.h"
+#include "emulator.h"
 
 inline int isValidMipsElf(Elf32_Ehdr *elfHdr)
 {
@@ -13,7 +14,7 @@ inline int isValidMipsElf(Elf32_Ehdr *elfHdr)
 	return 0;
 }
 
-u32 openElf(char *path, u32 baseaddr)
+u32 openElf(mipsCpu* cpu, char *path, u32 baseaddr)
 {
 	int section;
 	
@@ -40,7 +41,7 @@ u32 openElf(char *path, u32 baseaddr)
 #endif
 		
 		if(sectionHdr.sh_flags & SHT_NOBITS) {
-			memoryset(sectionHdr.sh_addr, 0, sectionHdr.sh_size);
+			memoryset(cpu, sectionHdr.sh_addr, 0, sectionHdr.sh_size);
 		}
 		
 		if(sectionHdr.sh_flags & SHF_EXECINSTR) {
@@ -56,7 +57,7 @@ u32 openElf(char *path, u32 baseaddr)
 			fseek(fd, sectionHdr.sh_offset, SEEK_SET);
 			fread(sectionBuffer, 1, sectionHdr.sh_size, fd);
 			
-			memcopy(sectionBuffer, baseaddr, sectionHdr.sh_size);
+			memcopy(cpu, sectionBuffer, baseaddr, sectionHdr.sh_size);
 			
 			free(sectionBuffer);				
 		}	

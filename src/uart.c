@@ -7,9 +7,9 @@
 static u8  uartBuffer;
 static u32 uartAddress;
 
-int setupUart(u32 baseAddr)
+int setupUart(mipsCpu* cpu, u32 baseAddr)
 {
-	if(mapMemory(baseAddr, 0xF, FLAG_RAM) < 0) {
+	if(mapMemory(cpu, baseAddr, 0xF, FLAG_RAM) < 0) {
 #ifdef DEBUG
 		printf("Cannot allocate space for UART buffer\n");
 #endif
@@ -19,12 +19,12 @@ int setupUart(u32 baseAddr)
 	uartAddress = baseAddr;
 	
 	/* Set up parameters. */
-	emulatedCpu.writeByte(uartAddress + UART_REG_LCR, 0xE0);
+	cpu->writeByte(cpu, uartAddress + UART_REG_LCR, 0xE0);
 	
 	return 1;
 }
 
-u8 readUartByte()
+u8 readUartByte(mipsCpu* cpu)
 {
 	if(uartAddress == 0) {
 #ifdef DEBUG
@@ -33,13 +33,13 @@ u8 readUartByte()
 		return 0;
 	}
 	
-	if(emulatedCpu.readByte(uartAddress + UART_REG_IIR_FCR) & 0x20)
-		emulatedCpu.writeByte(uartAddress + UART_REG_IIR_FCR, 0x0);
+	if(cpu->readByte(cpu, uartAddress + UART_REG_IIR_FCR) & 0x20)
+		cpu->writeByte(cpu, uartAddress + UART_REG_IIR_FCR, 0x0);
 	
-	return emulatedCpu.readByte(uartAddress + UART_REG_RBR_THR);
+	return cpu->readByte(cpu, uartAddress + UART_REG_RBR_THR);
 }
 
-void writeUartByte()
+void writeUartByte(mipsCpu* cpu)
 {
 	/* This function needs work! It's not correct! */
 	if(uartAddress == 0) {
@@ -48,5 +48,5 @@ void writeUartByte()
 #endif		
 		return;
 	}
-	emulatedCpu.writeByte(uartAddress + UART_REG_RBR_THR, uartBuffer);
+	cpu->writeByte(cpu, uartAddress + UART_REG_RBR_THR, uartBuffer);
 }
