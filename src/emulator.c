@@ -207,25 +207,6 @@ mipsCpu* initializeCPU(u8 endian, u32 stackPtr)
 	return cpu;
 }
 
-/* Todo : Maybe those are better in a .h file along with another one with
- * the exceptions number ? */
-
-enum {
-	COP0_REG_CONTEXT 	= 4,
-	COP0_REG_BADVADDR 	= 8,
-	COP0_REG_COUNT 		= 9,
-	COP0_REG_COMPARE 	= 11,
-	COP0_REG_STATUS 	= 12,
-	COP0_REG_CAUSE 		= 13,
-	COP0_REG_EPC 		= 14,
-	COP0_REG_WATCHLO 	= 18,
-	COP0_REG_WATCHHI 	= 19,
-	COP0_REG_XCONTEXT 	= 20,
-	COP0_REG_ECC 		= 26,
-	COP0_REG_CACHEERR 	= 27,
-	COP0_REG_ERROREPC 	= 30
-} COP0_REGISTERS;
-
 #define RESET_VECTOR_BEV_0 	(0x0000000080000000)
 #define RESET_VECTOR_BEV_1 	(0x00000000BFC00200)
 #define DEFAULT_RESET_VECTOR 	(RESET_VECTOR_BEV_1)
@@ -243,23 +224,23 @@ void generateException(mipsCpu* cpu, u32 exception, u32 delay)
 	printf("Caught exception 0x%08X\n", exception);
 
 	setCopRegister(cpu, 0, COP0_REG_EPC, cpu->pc);
-	setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0xFFFFFFFFFFFFFF00) | (exception << 2));
+	setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0xFFFFFF00) | (exception << 2));
 
 	if (delay) {
 		setCopRegister(cpu, 0, COP0_REG_EPC, readCopRegister(cpu, 0, COP0_REG_EPC) - 4);
 		/* Set the BV bit in the CAUSE register if we are in a branch delay */
-		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFFFFFFFFFF00) | (((mipsRegister)1) << 63));
+		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFF00) | (((mipsRegister)1) << 31));
 	} else {
-		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFFFFFFFFFF00) | (((mipsRegister)0) << 63));
+		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFF00) | (((mipsRegister)0) << 31));
 	}
 	
-	if (readCopRegister(cpu, 0, COP0_REG_STATUS) & 0x200000) { /* BEV bit is set. */
+	if ((readCopRegister(cpu, 0, COP0_REG_STATUS) >> 22) & 0x1) { /* BEV bit is set. */
 		resetVectorAddress = RESET_VECTOR_BEV_1;
 	} else {
 		resetVectorAddress = RESET_VECTOR_BEV_0;
 	}
 	
-	if (!(exception >= 1 && exception <= 3)) { /* Nothing TLB related ? */
+	if (!(exception >= EXCEPTION_TLBMOD && exception <= EXCEPTION_TLBSTORE)) { /* Nothing TLB related ? */
 		resetVectorAddress += 0x180;
 	}
 
@@ -280,8 +261,9 @@ void executeOpcode(mipsCpu* cpu, u32 opcode)
 
 #ifdef DEBUG
 	printf("Should use branch delay : %s\n", (opc->delay) ? "Yes" : "No");
-	printf(">> (%08X) %s\n", opcode, textOpcode(cpu, opc));
 #endif
+
+	printf(">> (%08X) %s\n", opcode, textOpcode(cpu, opc));
 	
 	if(opc->delay && cpu->bOpcode == 0) {
 		cpu->bOpcode = getNextPC(cpu);
@@ -303,6 +285,7 @@ void executeOpcode(mipsCpu* cpu, u32 opcode)
 void runProcessor(mipsCpu* cpu)
 {
 	u32 opcode;
+	
 	if(cpu->endian == ENDIANNESS_LE) {
 		opcode = (u8)(cpu->readByte(cpu, getNextPC(cpu) + 3)) << 24 | 
 			 (u8)(cpu->readByte(cpu, getNextPC(cpu) + 2)) << 16 | 
@@ -311,23 +294,6 @@ void runProcessor(mipsCpu* cpu)
 	}else{
 		opcode = (u32)(cpu->readWord(cpu, getNextPC(cpu)));
 	}
+	
 	executeOpcode(cpu, opcode);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

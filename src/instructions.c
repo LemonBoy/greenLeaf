@@ -17,11 +17,6 @@
 
 #define MAXMASK(b)	(((1LL << ((b) - 1)) - 1) + (1LL << ((b) - 1)))
 
-/* README:
- * All the branch instruction follows the one-instruction-delay-slot rule
- * so remember to add it into dasmOpcode rules (dasm.c) for the sake of
- * emulation goodness. */
-
 void cop0Handler(mipsCpu* cpu, mipsDasm *dasm)
 {
 	switch(readRegister(cpu, dasm->rs)) {
@@ -96,14 +91,14 @@ MIPS_COP_INSTRUCTION( RNOP )
 /* Reserved No Operation (holds place for exception-raising reserved slots). */
 MIPS_INSTRUCTION( RESV )
 {
-	generateException(cpu, EXCEPTION_RESERVED, dasm->delay);
+	generateException(cpu, EXCEPTION_RESERVEDINSTR, dasm->delay);
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
 
 /* Reserved No Operation (holds place for exception-raising reserved slots). */
 MIPS_COP_INSTRUCTION( RESV )
 {
-	generateException(cpu, EXCEPTION_RESERVED, dasm->delay);
+	generateException(cpu, EXCEPTION_RESERVEDINSTR, dasm->delay);
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
 
@@ -829,7 +824,7 @@ MIPS_INSTRUCTION( LH )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 2)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	s16 value = cpu->readHword(cpu, off);
 	setRegister(cpu, dasm->rt, _signextend(value, 16, BITCOUNT));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -841,7 +836,7 @@ MIPS_INSTRUCTION( LHU )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 2)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	u16 value = cpu->readHword(cpu, off);
 	setRegister(cpu, dasm->rt, _zeroextend(value, 16, BITCOUNT));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -861,7 +856,7 @@ MIPS_INSTRUCTION( LW )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 4)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	s32 value = cpu->readWord(cpu, off);
 	setRegister(cpu, dasm->rt, _signextend(value, 32, BITCOUNT));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -901,7 +896,7 @@ MIPS_INSTRUCTION( LWU )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 4)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	u32 value = cpu->readWord(cpu, off);
 	setRegister(cpu, dasm->rt, _zeroextend(value, 32, BITCOUNT));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -914,7 +909,7 @@ MIPS_INSTRUCTION( LD )
 	s64 imm = _signextend(dasm->immediate, 16, 64);
 	u64 off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 8)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	s64 value = cpu->readDword(cpu, off);
 	setRegister(cpu, dasm->rt, value);
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -965,7 +960,7 @@ MIPS_INSTRUCTION( LL )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 4)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 #ifdef DEBUG
 	printf("Instruction LL not properly supported!\n");
 #endif
@@ -982,7 +977,7 @@ MIPS_INSTRUCTION( LLD )
 	s64 imm = _signextend(dasm->immediate, 16, 64);
 	u64 off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 8)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 #ifdef DEBUG
 	printf("Instruction LLD not properly supported!\n");
 #endif
@@ -1014,7 +1009,7 @@ MIPS_INSTRUCTION( SH )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 2)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	cpu->writeHword(cpu, off, readRegister(cpu, dasm->rt) & MAXMASK(16));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -1025,7 +1020,7 @@ MIPS_INSTRUCTION( SW )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 4)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	cpu->writeWord(cpu, off, readRegister(cpu, dasm->rt) & MAXMASK(32));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -1061,7 +1056,7 @@ MIPS_INSTRUCTION( SD )
 	s64 imm = _signextend(dasm->immediate, 16, 64);
 	u64 off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 8)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	cpu->writeDword(cpu, off, readRegister(cpu, dasm->rt));
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 #else
@@ -1107,7 +1102,7 @@ MIPS_INSTRUCTION( SC )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	mipsRegister_u off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 4)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	mipsRegister_u pass;
 #ifdef DEBUG
 	printf("Instruction SC not properly supported!\n");
@@ -1128,7 +1123,7 @@ MIPS_INSTRUCTION( SCD )
 	s64 imm = _signextend(dasm->immediate, 16, 64);
 	u64 off = readRegister(cpu, dasm->rs) + imm;
 	if(off % 8)
-		generateException(cpu, EXCEPTION_ADDRESS, dasm->delay);
+		generateException(cpu, EXCEPTION_BADADDR_STORE, dasm->delay);
 	u64 pass;
 #ifdef DEBUG
 	printf("Instruction SCD not properly supported!\n");
@@ -1876,17 +1871,17 @@ void execOpcode(mipsCpu* cpu, mipsDasm *dasm)
 #endif
 		}
 	}else if((dasm->instruction & ~0x3) == 0x10) {
-		if(readRegister(cpu, dasm->rs) <= COPROC_INST_COUNT) {
-			if(readRegister(cpu, dasm->rs) == 0x8) {
-				if(readRegister(cpu, dasm->rs) <= COPROC_BC_INST_COUNT) {
-					(coprocBcInstructionTable[readRegister(cpu, dasm->rs)].execute == MIPS_COP_INSTR_NAME(RNOP)) ? \
-						copxHandler(cpu, dasm) : coprocBcInstructionTable[readRegister(cpu, dasm->rs)].execute(cpu, dasm, dasm->instruction & 0x3);
+		if (dasm->rs <= COPROC_INST_COUNT) {
+			if( dasm->rs == 0x8) {
+				if(dasm->rs <= COPROC_BC_INST_COUNT) {
+					(coprocBcInstructionTable[dasm->rs].execute == MIPS_COP_INSTR_NAME(RNOP)) ? \
+						copxHandler(cpu, dasm) : coprocBcInstructionTable[dasm->rs].execute(cpu, dasm, dasm->instruction & 0x3);
 				}else{
 #ifdef DEBUG
 					printf("rt is too high!\n");
 #endif
 				}
-			}else if(readRegister(cpu, dasm->rs) & 0x10) {
+			}else if(dasm->rs & 0x10) {
 				if(dasm->funct <= COPROC_COP0_INST_COUNT) {
 					(cop0InstructionTable[dasm->funct].execute == MIPS_INSTR_NAME(RNOP)) ? \
 						cop0Handler(cpu, dasm) : cop0InstructionTable[dasm->funct].execute(cpu, dasm);
@@ -1896,8 +1891,8 @@ void execOpcode(mipsCpu* cpu, mipsDasm *dasm)
 #endif
 				}
 			}else{
-				(coprocInstructionTable[readRegister(cpu, dasm->rs)].execute == MIPS_COP_INSTR_NAME(RNOP)) ? \
-					copxHandler(cpu, dasm) : coprocInstructionTable[readRegister(cpu, dasm->rs)].execute(cpu, dasm, dasm->instruction & 0x3);
+				(coprocInstructionTable[dasm->rs].execute == MIPS_COP_INSTR_NAME(RNOP)) ? \
+					copxHandler(cpu, dasm) : coprocInstructionTable[dasm->rs].execute(cpu, dasm, dasm->instruction & 0x3);
 			}
 		}else{
 #ifdef DEBUG
@@ -1936,13 +1931,13 @@ char* textOpcode(mipsCpu* cpu, mipsDasm *dasm)
 			return "Not implemented";
 		}
 	}else if((dasm->instruction & ~0x3) == 0x10) {
-		if(readRegister(cpu, dasm->rs) <= COPROC_INST_COUNT) {
-			if(readRegister(cpu, dasm->rs) == 0x8)
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			if(dasm->rs == 0x8)
 				return dasmFormat(coprocBcInstructionTable[readRegister(cpu, dasm->rt)].textDisasm, dasm);
-			else if(readRegister(cpu, dasm->rs) & 0x10)
+			else if(dasm->rs & 0x10)
 				return dasmFormat(cop0InstructionTable[dasm->funct].textDisasm, dasm);
 			else
-				return dasmFormat(coprocInstructionTable[readRegister(cpu, dasm->rs)].textDisasm, dasm);
+				return dasmFormat(coprocInstructionTable[dasm->rs].textDisasm, dasm);
 		}else{
 #ifdef DEBUG
 			printf("rs is too high!\n");

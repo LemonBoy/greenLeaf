@@ -4,6 +4,6 @@
 #include "types.h"
 #include "emulator.h"
 
-u32 openElf(mipsCpu* cpu, char *path, u32 baseaddr);
+u32 openElf(mipsCpu* cpu, char *path);
 
 #endif

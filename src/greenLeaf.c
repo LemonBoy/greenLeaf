@@ -8,8 +8,6 @@
 #include "memory.h"
 #include "uart.h"
 
-FILE* uartfile;
-
 char ascii(char s)
 {
 	if(s < 0x20) return '.';
@@ -41,11 +39,25 @@ void __hexdump(void *d, int len)
 	}
 }
 
+void bitdump (void * data, int sz)
+{
+	sz = sz << 2;
+	printf("Sz %i\n", sz);
+	while (sz--) {
+		printf("%X ", (((u8 *)*(&data))[0] >> sz) & 0x1);
+	}
+	printf("\n");
+}
+
 int main(int argc, char *argv[])
 {
 	char* filename;
 	s32 ret;
 	mipsCpu* cpu;
+	
+	unsigned long long l = 0xFFFFFFFFFF;
+	bitdump(&l, sizeof(unsigned long long));
+	exit(1);
 	
 	printf("greenLeaf 0.1\n");
 	printf("mips emulator by The Lemon Man and SquidMan\n");
@@ -70,24 +82,27 @@ int main(int argc, char *argv[])
 	printf("Reset vector %d\n",	mapMemory(cpu, 0xBFC00000, 0x40000, FLAG_RAM));
 	printf("Addictional mem %d\n",	mapMemory(cpu, 0xA0000010, 0x02000, FLAG_RAM));
 	
-	ret = openElf(cpu, filename, 0xBFC00000);
+	ret = openElf(cpu, filename);
 
 	printf("Entry %#x\n",	(u32)ret);
 	
-	printf("Uart %i\n",	setupUart(cpu, 0xB40003F0));
+	printf("Uart %i\n",	setupUart(cpu, 0xB40003f8));
 	
-	setPC(cpu, 0xBFC00000);
+	setPC(cpu, ret);
 	
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {
 		fgetc(stdin);
 		runProcessor(cpu);
-//		printRegisters(cpu);
+		//~ printRegisters(cpu);
 	}
 	
 	printf("Execution finished... unmapping the ram\n");
+	
 	unmapMemory(cpu);
+	
 	free(filename);
+	
 	return 1;
 }

@@ -14,50 +14,52 @@ inline int isValidMipsElf(Elf32_Ehdr *elfHdr)
 	return 0;
 }
 
-u32 openElf(mipsCpu* cpu, char *path, u32 baseaddr)
+u32 openElf(mipsCpu* cpu, char *path)
 {
 	int section;
+	u8 * sectionBuffer = NULL;
 	
 	Elf32_Ehdr elfHdr;
 	Elf32_Shdr sectionHdr;
-	
-	u32 entryPoint = 0;
-	
+
 	FILE* fd = fopen(path, "rb");
-	if(fd == NULL)
+	
+	if(fd == NULL) {
 		return -1;
+	}
 	
 	fread(&elfHdr, 1, sizeof(Elf32_Ehdr), fd);
 	
-	if(!isValidMipsElf(&elfHdr))
+	if(!isValidMipsElf(&elfHdr)) {
 		return -1;
-
+	}
+		
 	for(section = 0; section < elfHdr.e_shnum; section++) {
 		fseek(fd, elfHdr.e_shoff + (section * sizeof(Elf32_Shdr)), SEEK_SET);
 		fread(&sectionHdr, 1, sizeof(Elf32_Shdr), fd);
 		
-#ifdef DEBUG
-		printf("Section addr 0x%08X\n", sectionHdr.sh_addr);
-#endif
-		
-		if(sectionHdr.sh_flags & SHT_NOBITS) {
-			memoryset(cpu, sectionHdr.sh_addr, 0, sectionHdr.sh_size);
+		if ((!(sectionHdr.sh_flags & SHF_ALLOC)) ||
+		    (!(sectionHdr.sh_addr))              ||
+		    (!(sectionHdr.sh_size)))
+		{
+			continue;
 		}
 		
-		if(sectionHdr.sh_flags & SHF_EXECINSTR) {
 #ifdef DEBUG
-			printf("Executable section %d (Size: 0x%08X)\n", section, sectionHdr.sh_size);
-			printf("offset 0x%08X\n", sectionHdr.sh_offset);
+		printf("Section :         %d\n", section);
+		printf("Size    :         0x%08X\n", sectionHdr.sh_size);
+		printf("Offset  :         0x%08X\n", sectionHdr.sh_offset);
+		printf("Address :         0x%08X\n", sectionHdr.sh_addr);
 #endif
-			entryPoint |= (sectionHdr.sh_addr & 0x3FFFFFFF);
-			//~ entryPoint |= baseaddr;
-			
-			u8 *sectionBuffer = malloc(sectionHdr.sh_size);
+		if(sectionHdr.sh_flags & SHT_NOBITS) {
+			memoryset(cpu, sectionHdr.sh_addr, 0, sectionHdr.sh_size);
+		} else {
+			sectionBuffer = malloc(sectionHdr.sh_size);
 			
 			fseek(fd, sectionHdr.sh_offset, SEEK_SET);
 			fread(sectionBuffer, 1, sectionHdr.sh_size, fd);
 			
-			memcopy(cpu, sectionBuffer, baseaddr, sectionHdr.sh_size);
+			memcopy(cpu, sectionBuffer, sectionHdr.sh_addr, sectionHdr.sh_size);
 			
 			free(sectionBuffer);				
 		}	
@@ -66,5 +68,5 @@ u32 openElf(mipsCpu* cpu, char *path, u32 baseaddr)
 		
 	fclose(fd);
 		
-	return entryPoint;
+	return elfHdr.e_entry;
 }

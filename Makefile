@@ -2,9 +2,7 @@ OBJECTS = src/binary.o src/dasm.o src/emulator.o src/greenLeaf.o src/instruction
 OUTPUT = greenLeaf
 DEFINES = -DDEBUG
 CFLAGS = -g -std=c99 -Wall -pedantic -O2
-LDFLAGS = 
-
-SUBDIRS = test
+LDFLAGS =
 
 all: $(OUTPUT)
 %.o: %.c
@@ -13,3 +11,5 @@ $(OUTPUT): $(OBJECTS)
 	gcc $(LDFLAGS) -o $(OUTPUT) $(OBJECTS)
 clean:
 	rm -f $(OUTPUT) $(OBJECTS)
+run:
+	./$(OUTPUT)
