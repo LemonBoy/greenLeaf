@@ -8,6 +8,8 @@
 #include "memory.h"
 #include "uart.h"
 
+#define TICK_AT_A_TIME
+
 char ascii(char s)
 {
 	if(s < 0x20) return '.';
@@ -74,11 +76,11 @@ int main(int argc, char *argv[])
 	
 	printf("Mapping the ram...\n");
 	
-	printf("Main memory %d\n",	mapMemory(cpu, 0x80000000, 0x40000, FLAG_RAM));
-	printf("Reset vector %d\n",	mapMemory(cpu, 0xBFC00000, 0x40000, FLAG_RAM));
-	printf("Addictional mem %d\n",	mapMemory(cpu, 0xA0000010, 0x02000, FLAG_RAM));
+	printf("Main memory %d\n",	mapMemory(cpu, 0x80000000, 0x100000, FLAG_RAM));
+	printf("Reset vector %d\n",	mapMemory(cpu, 0xBFC00000, 0x100000, FLAG_RAM));
+	printf("Additional mem %d\n",	mapMemory(cpu, 0xA0000010, 0x100000, FLAG_RAM));
 	
-	ret = openElf(cpu, filename);
+	ret = openRaw(cpu, filename, 0xBFC00000);
 
 	printf("Entry %#x\n",	(u32)ret);
 	
@@ -89,7 +91,9 @@ int main(int argc, char *argv[])
 	printf("Press enter to run a tick and print the registers...\n");
 	printf("Press enter to continue.\n");
 	for(;;) {
+#ifdef TICK_AT_A_TIME
 		fgetc(stdin);
+#endif
 		runProcessor(cpu);
 		//~ printRegisters(cpu);
 	}

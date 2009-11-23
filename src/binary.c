@@ -70,3 +70,24 @@ u32 openElf(mipsCpu* cpu, char *path)
 		
 	return elfHdr.e_entry;
 }
+
+u32 openRaw(mipsCpu* cpu, char *path, u32 addr)
+{
+	u8* buf = NULL;
+	size_t sz;
+	FILE* fd = fopen(path, "rb");
+	if(fd == NULL) {
+		return -1;
+	}
+	fseek(fd, 0, SEEK_END);
+	sz = ftell(fd);
+	fseek(fd, 0, SEEK_SET);
+	buf = malloc(sz);
+	fread(buf, 1, sz, fd);
+	fclose(fd);
+	printf("Size    :         0x%08X\n", sz);
+	printf("Address :         0x%08X\n", addr);
+	memcopy(cpu, buf, addr, sz);
+	free(buf);
+	return addr;
+}

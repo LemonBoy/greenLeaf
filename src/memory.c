@@ -73,13 +73,22 @@ mipsMappedMemory *getBank(mipsCpu* cpu, u32 address, u32 size, int access)
 							break;
 					case 1: /* Read access requested */
 					default:
+#ifdef DEBUG
+#ifdef HYPERDEBUG
+						printf("Found\n");
+#endif
+#endif	
 						return ptr;
 				}
 			}
 		}
 		ptr = ptr->next;
 	}
-		
+#ifdef DEBUG
+#ifdef HYPERDEBUG
+	printf("Not found\n");
+#endif
+#endif	
 	return NULL;
 }	
 
@@ -119,7 +128,7 @@ u8 readByte(mipsCpu* cpu, u32 address)
 		generateException(cpu, 4, 0);
 		exit(1);
 	}
-	return bank->memory[(address - bank->addrStart)];
+	return bank->memory[(address ^ bank->addrStart)];
 }
 
 void writeByte(mipsCpu* cpu, u32 address, u8 value)
@@ -130,7 +139,7 @@ void writeByte(mipsCpu* cpu, u32 address, u8 value)
 		generateException(cpu, 5, 0);
 		exit(1);
 	}	
-	bank->memory[(address - bank->addrStart)] = value;
+	bank->memory[(address ^ bank->addrStart)] = value;
 }
 
 /*
@@ -271,7 +280,7 @@ void writeDwordBE(mipsCpu* cpu, u32 address, u64 value)
 
 void memcopy(mipsCpu* cpu, void *src, u32 address, int size)
 {
-	int x;
+	u32 x;
 	u8* s = src;
 	for (x = 0; x < size; x++, s++)
 		writeByte(cpu, address + x, *s);
