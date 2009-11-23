@@ -55,10 +55,6 @@ int main(int argc, char *argv[])
 	s32 ret;
 	mipsCpu* cpu;
 	
-	unsigned long long l = 0xFFFFFFFFFF;
-	bitdump(&l, sizeof(unsigned long long));
-	exit(1);
-	
 	printf("greenLeaf 0.1\n");
 	printf("mips emulator by The Lemon Man and SquidMan\n");
 
