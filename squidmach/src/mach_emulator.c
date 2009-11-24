@@ -14,7 +14,7 @@
  * Initialize the cpu emulation core. 
  */
 
-mipsCpu* initializeCPU(u8 endian, u32 stackPtr)
+mipsCpu* initializeCPU(u32 stackPtr)
 {
 	mipsCpu* cpu = calloc(sizeof(mipsCpu), 1);
 	int reg, cop;
@@ -33,45 +33,21 @@ mipsCpu* initializeCPU(u8 endian, u32 stackPtr)
 	cpu->nPc = ((mipsRegister)0);
 	cpu->bOpcode = ((mipsRegister)0);
 	
-	cpu->endian = endian;
+	cpu->endian = ENDIANNESS_LE;
 	cpu->rootBank = NULL;
 	cpu->mappedBanks = NULL;
 	
-	switch(cpu->endian) {
-		case ENDIANNESS_LE:
 #ifdef DEBUG
-			printf("Cpu endianess set to little endian\n");
+	printf("Cpu endianess set to little endian\n");
 #endif
-			cpu->readByte   = readByteLE;
-			cpu->readHword  = readHwordLE;
-			cpu->readWord   = readWordLE;
-			cpu->readDword  = readDwordLE;
-			
-			cpu->writeByte  = writeByteLE;
-			cpu->writeHword = writeHwordLE;
-			cpu->writeWord  = writeWordLE;
-			cpu->writeDword = writeDwordLE;
-			break;
-		
-		case ENDIANNESS_BE:
-#ifdef DEBUG
-			printf("Cpu endianess set to big endian\n");
-#endif
-			cpu->readByte  = readByteBE;
-			cpu->readHword = readHwordBE;
-			cpu->readWord  = readWordBE;
-			cpu->readDword = readDwordBE;
-			
-			cpu->writeByte  = writeByteBE;
-			cpu->writeHword = writeHwordBE;
-			cpu->writeWord  = writeWordBE;
-			cpu->writeDword = writeDwordBE;
-			break;
-		default:
-			printf("Error: Endian setting is neither BE nor LE.\n");
-			assert((cpu->endian == ENDIANNESS_BE) || (cpu->endian == ENDIANNESS_LE));
-			break;
-	}
+	cpu->readByte   = readByteLE;
+	cpu->readHword  = readHwordLE;
+	cpu->readWord   = readWordLE;
+	cpu->readDword  = readDwordLE;
+	cpu->writeByte  = writeByteLE;
+	cpu->writeHword = writeHwordLE;
+	cpu->writeWord  = writeWordLE;
+	cpu->writeDword = writeDwordLE;
 	cpu->readOpcode = readOpcode;
 	return cpu;
 }

@@ -89,7 +89,6 @@ typedef struct _mipsCpu {
  * Function prototypes.
  */
 
-mipsCpu*	initializeCPU	 (u8 endian, u32 stackPtr);
 void		runProcessor	 (mipsCpu* cpu);
 void		executeOpcode	 (mipsCpu* cpu, u32 opcode);
 void		printRegisters	 (mipsCpu* cpu);

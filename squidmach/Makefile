@@ -4,8 +4,8 @@ MACHOBJECTS = $(BASE)/squidmach/src/mach_main.o $(BASE)/squidmach/src/mach_hw.o 
 OBJECTS = $(COREOBJECTS) $(MACHOBJECTS)
 OUTPUT = squidemu
 # DEFINES = -DDEBUG -DHYPERDEBUG
-DEFINES = -DDEBUG
-# DEFINES = 
+# DEFINES = -DDEBUG
+DEFINES = 
 INCLUDES = -I$(BASE)/include -I$(BASE)/squidmach/include
 CFLAGS = -g -std=c99 -Wall -pedantic -O2 $(INCLUDES)
 LDFLAGS =

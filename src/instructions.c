@@ -1364,11 +1364,9 @@ MIPS_INSTRUCTION( TLBWR )
 /* Exception return. */
 MIPS_INSTRUCTION( ERET )
 {
-#ifdef DEBUG
-	printf("Instruction ERET unsupported!\n");
-#endif
-	/* TODO: Implement */
-	/* We need to kill all the LL/SC pairs here too */
+	setPC(cpu, readCopRegister(cpu, 0, COP0_REG_EPC));
+	/* TODO: We need to kill all the LL/SC pairs here */
+	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
 

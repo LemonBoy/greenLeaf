@@ -7,23 +7,27 @@
 */
 	.set noreorder
 
-	.equ	PRINTSYSCALL,	4
+	.equ	SYSCALLS_PRINT_HEX,  1
+	.equ	SYSCALLS_PRINT_TEXT, 2
 
 .section .info, "wa", @progbits
 text:
-	.asciiz "µChecksum 0.1 - (C) 2009 - The Lemon Man & SquidMan"
+	.asciiz "µChecksum 0.1 - (C) 2009 - The Lemon Man & SquidMan\n"
 
 .section .code, "ax", @progbits
 _main:
         /* Print out my text. */
         la   $a0, text
-        li   $v0, PRINTSYSCALL
-#       syscall
+        li   $v0, SYSCALLS_PRINT_TEXT
+        syscall
         /* Point the streameater to 0xBFC00000 and 0x20 as size. */
         la   $a0, 0xBFC00000
         li   $a1, 0x20
         jal  eatStream
         nop
+        move $a0, $v0
+        li   $v0, SYSCALLS_PRINT_HEX
+	syscall
 hang:
         j    hang
         nop

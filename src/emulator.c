@@ -157,15 +157,17 @@ void generateException(mipsCpu* cpu, u32 exception, u32 delay)
 #if BITCOUNT == 64
 #define SHIFTVAL	63
 #define ANDVAL1		0xFFFFFFFFFFFFFF00
-#define ANDVAL2		0x3FFFFFFFFFFFFF00
+#define ANDVAL2		0x3FFFFFFFFFFFFFFF
 #else
 #define SHIFTVAL	31
 #define ANDVAL1		0xFFFFFF00
-#define ANDVAL2		0x3FFFFF00
+#define ANDVAL2		0x3FFFFFFF
 #endif
 	mipsRegister resetVectorAddress = DEFAULT_RESET_VECTOR;
 	
+#ifdef DEBUG
 	printf("Caught exception 0x%08X\n", exception);
+#endif
 
 	setCopRegister(cpu, 0, COP0_REG_EPC, cpu->pc);
 	setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & ANDVAL1) | (exception << 2));
@@ -188,10 +190,12 @@ void generateException(mipsCpu* cpu, u32 exception, u32 delay)
 		resetVectorAddress += 0x180;
 	}
 
+#ifdef DEBUG
 #if BITCOUNT == 64
 	printf("Jumping to the reset vector at 0x%016llX\n", resetVectorAddress);
 #else
 	printf("Jumping to the reset vector at 0x%08X\n", resetVectorAddress);
+#endif
 #endif
 	
 	setPC(cpu, resetVectorAddress);
@@ -205,9 +209,8 @@ void executeOpcode(mipsCpu* cpu, u32 opcode)
 
 #ifdef DEBUG
 	printf("Should use branch delay : %s\n", (opc->delay) ? "Yes" : "No");
-#endif
-
 	printf(">> (%08X) %s\n", opcode, textOpcode(cpu, opc));
+#endif
 	
 	if(opc->delay && cpu->bOpcode == 0) {
 		cpu->bOpcode = getNextPC(cpu);

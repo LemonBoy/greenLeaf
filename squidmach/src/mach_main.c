@@ -12,7 +12,9 @@
 #include "mach_memory.h"
 #include "mach_hw.h"
 
+#ifdef DEBUG
 #define TICK_AT_A_TIME
+#endif
 
 char ascii(char s)
 {
@@ -45,7 +47,7 @@ void __hexdump(void *d, int len)
 	}
 }
 
-void bitdump (void * data, int sz)
+void bitdump(void * data, int sz)
 {
 	sz = sz << 2;
 	printf("Sz %i\n", sz);
@@ -76,7 +78,7 @@ int main(int argc, char *argv[])
 	printf("Debug mode enabled\n");
 #endif
 	printf("Initializing the CPU core...\n");
-	cpu = initializeCPU(ENDIANNESS_LE, 0x80000000);
+	cpu = initializeCPU(0x80000000);
 	
 	printf("Mapping the ram...\n");
 	
@@ -143,9 +145,11 @@ int main(int argc, char *argv[])
 	for(;;) {
 #ifdef TICK_AT_A_TIME
 		fgetc(stdin);
+#else
+		usleep(250);	/* Lets have some delay so we don't blow the thing up */
 #endif
 		runProcessor(cpu);
-//		printRegisters(cpu);
+/*		printRegisters(cpu); */
 	}
 	
 	printf("Execution finished... unmapping the ram\n");
