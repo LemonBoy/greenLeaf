@@ -1,11 +1,12 @@
-COREOBJECTS = src/binary.o src/dasm.o src/emulator.o src/instructions.o src/memory.o
-MACHOBJECTS = machdep/src/mach_uart.o machdep/src/mach_main.o machdep/src/mach_memory.o machdep/src/mach_emulator.o
+BASE = .
+COREOBJECTS = $(BASE)/src/binary.o $(BASE)/src/dasm.o $(BASE)/src/emulator.o $(BASE)/src/instructions.o $(BASE)/src/memory.o
+MACHOBJECTS = $(BASE)/machdep/src/mach_uart.o $(BASE)/machdep/src/mach_main.o $(BASE)/machdep/src/mach_memory.o $(BASE)/machdep/src/mach_emulator.o
 OBJECTS = $(COREOBJECTS) $(MACHOBJECTS)
 OUTPUT = greenLeaf
 # DEFINES = -DDEBUG -DHYPERDEBUG
 DEFINES = -DDEBUG
 # DEFINES = 
-INCLUDES = -Iinclude -Imachdep/include
+INCLUDES = -I$(BASE)/include -I$(BASE)/machdep/include
 CFLAGS = -g -std=c99 -Wall -pedantic -O2 $(INCLUDES)
 LDFLAGS =
 

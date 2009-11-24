@@ -52,7 +52,7 @@ char *dasmFormat(char *haystack, mipsDasm *dasm)
 					len = strlen(fmtBuf);
 					break;
 				case 'j':
-					sprintf(fmtBuf, "%c0x%07X", (dasm->jump & 0x2000000) ? '-' : ' ', dasm->jump & 0x1FFFFFF);
+					sprintf(fmtBuf, "0x%07X", dasm->jump & 0x3FFFFFF);
 					strcpy(&(*fptr), fmtBuf);
 					len = strlen(fmtBuf);
 					break;

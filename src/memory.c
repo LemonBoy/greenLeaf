@@ -50,7 +50,7 @@ int checkBankOverlap(mipsCpu* cpu, u32 address, u32 size)
 	
 	while(ptr != NULL) {
 		if(address >= ptr->addrStart)
-			if (address + size <= ptr->addrEnd)
+			if(address + size <= ptr->addrEnd)
 				return 1;
 		ptr = ptr->next;
 	}
@@ -67,6 +67,12 @@ mipsMappedMemory *getBank(mipsCpu* cpu, u32 address, u32 size, int access)
 #endif
 #endif	
 	while(ptr != NULL) {
+#ifdef DEBUG
+#ifdef HYPERDEBUG
+		printf("\n\tBankstart 0x%08X\n", ptr->addrStart);
+		printf("\tBankend 0x%08X\n", ptr->addrEnd);
+#endif
+#endif	
 		if(address >= ptr->addrStart) {
 			if(address + size <= ptr->addrEnd) {
 				switch(access) {

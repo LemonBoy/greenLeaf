@@ -10,7 +10,7 @@
 
 #include "mach_emulator.h"
 #include "mach_memory.h"
-#include "mach_uart.h"
+#include "mach_hw.h"
 
 #define TICK_AT_A_TIME
 
@@ -58,15 +58,15 @@ void bitdump (void * data, int sz)
 int main(int argc, char *argv[])
 {
 	char* filename;
-	s32 ret;
+	s64 ret;
 	mipsCpu* cpu;
 	
-	printf("greenLeaf 0.1\n");
-	printf("mips emulator by The Lemon Man and SquidMan\n");
+	printf("SquidEmu\n");
+	printf("A test architecture using greenLeaf by SquidMan\n");
 
 	if(argc < 2) {	/* No arguments passed. */
 		filename = calloc(5, 1);
-		sprintf(filename, "test/mmon");
+		sprintf(filename, "test.elf");
 	}else{
 		filename = calloc(strlen(argv[1]) + 1, 1);
 		sprintf(filename, argv[1]);
@@ -80,27 +80,72 @@ int main(int argc, char *argv[])
 	
 	printf("Mapping the ram...\n");
 	
-	printf("Main memory %d\n",	mapMemory(cpu, 0x80000000, 0x40000, FLAG_RAM));
-	printf("Reset vector %d\n",	mapMemory(cpu, 0xBFC00000, 0x40000, FLAG_RAM));
-	printf("Additional mem %d\n",	mapMemory(cpu, 0xA0000010, 0x2000, FLAG_RAM));
+	ret = mapMemory(cpu, 0x00000000, 0x00010000, FLAG_RAM);
+	printf("Fast memory %lld\n",		ret);
+	if(ret < 0) {
+		printf("Failed.\n");
+		exit(7);
+	}
+	ret = mapMemory(cpu, 0x80000000, 0x00400000, FLAG_RAM);
+	printf("Main memory %lld\n",		ret);
+	if(ret < 0) {
+		printf("Failed.\n");
+		exit(6);
+	}
+	ret = mapMemory(cpu, 0xBFC00000, 0x00400000, FLAG_ROM);
+	printf("Bootstrap %lld\n",		ret);
+	if(ret < 0) {
+		printf("Failed.\n");
+		exit(5);
+	}
+	ret = mapMemory(cpu, 0xC0000000, 0x08000000, FLAG_ROM);
+	printf("ROM %lld\n",			ret);
+	if(ret < 0) {
+		printf("Failed.\n");
+		exit(4);
+	}
+	ret = mapMemory(cpu, 0x10000000, 0x000000FF, FLAG_RAM);
+	printf("Bootstrap Support %lld\n",	ret);
+	if(ret < 0) {
+		printf("Failed.\n");
+		exit(3);
+	}
 	
-//	ret = openRaw(cpu, filename, 0xBFC00000);
-	ret = openElf32(cpu, filename);
+	printf("Initializing the Hardware...\n");
+	if(!HWInit()) {
+		printf("Unable to init hardware.\n");
+		exit(2);
+	}
+	
+	printf("Loading bootstrap/BIOS...\n");
+	ret = openElf64(cpu, "bootstrap.elf");
+	if(ret < 0) {
+		printf("Error loading bootstrap/BIOS.\n");
+		unmapMemory(cpu);
+		free(filename);
+		exit(1);
+	}
+	printf("Loaded. Entrypoint 0x%08X\n", (u32)ret);
 
-	printf("Entry %#x\n",	(u32)ret);
+	printf("Loading ROM...\n");
+	ret = openElf64(cpu, filename);
+	if(ret < 0) {
+		printf("Error loading ROM.\n");
+		unmapMemory(cpu);
+		free(filename);
+		exit(1);
+	}
+	printf("Loaded.\n");
 	
-	printf("Uart %i\n",	setupUart(cpu, 0xB40003f8));
-	
-	setPC(cpu, ret);
+	setPC(cpu, 0xBFC00000);
 	
 	printf("Press enter to run a tick and print the registers...\n");
-	printf("Press enter to continue.\n");
 	for(;;) {
 #ifdef TICK_AT_A_TIME
 		fgetc(stdin);
 #endif
 		runProcessor(cpu);
-		//~ printRegisters(cpu);
+//		printRegisters(cpu);
 	}
 	
 	printf("Execution finished... unmapping the ram\n");
@@ -109,5 +154,5 @@ int main(int argc, char *argv[])
 	
 	free(filename);
 	
-	return 1;
+	return 0;
 }

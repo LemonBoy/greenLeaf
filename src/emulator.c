@@ -87,7 +87,8 @@ void doLink(mipsCpu* cpu, int r, int reg)
 void setJump(mipsCpu* cpu, mipsJumpAddress jumpAddress)
 {
 	cpu->pc  =  cpu->nPc;
-	cpu->nPc = (cpu->pc & 0xF0000000) | (jumpAddress << 2);
+	cpu->nPc = (cpu->pc & 0xF0000000) | jumpAddress;
+/*	cpu->nPc = (cpu->pc & 0xF0000000) | (jumpAddress << 2); */
 #ifdef DEBUG
 #if BITCOUNT == 64
 	printf("Jump -> Next pc is 0x%016llX\n", cpu->nPc);

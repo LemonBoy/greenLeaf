@@ -6,6 +6,15 @@
 #include "emulator.h"
 
 #include "mach_memory.h"
+#include "mach_hw.h"
+
+int memWithinRange(u32 addr1, u32 size1, u32 addr2)
+{
+	if(addr1 <= addr2)
+		if((addr1 + size1) > addr2)
+			return 1;
+	return 0;
+}
 
 /*
  * Endian-independant functions.
@@ -13,6 +22,8 @@
 
 u8 readByte(mipsCpu* cpu, u32 address)
 {
+	if(memWithinRange(HW_REGS_ADDR, HW_REGS_SIZE, address))
+		return readHWRegByte(cpu, address);
 	mipsMappedMemory *bank = getBank(cpu, address, sizeof(u8), 1);
 	if (bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
@@ -30,6 +41,10 @@ u8 readByte(mipsCpu* cpu, u32 address)
 
 void writeByte(mipsCpu* cpu, u32 address, u8 value)
 {
+	if(memWithinRange(HW_REGS_ADDR, HW_REGS_SIZE, address)) {
+		writeHWRegByte(cpu, address, value);
+		return;
+	}
 	mipsMappedMemory *bank = getBank(cpu, address, sizeof(u8), 2);
 	if(bank == NULL) {
 		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
@@ -49,8 +64,7 @@ void writeByte_load(mipsCpu* cpu, u32 address, u8 value)
 {
 	mipsMappedMemory *bank = getBank(cpu, address, sizeof(u8), 0);
 	if(bank == NULL) {
-		printf("EXCEPTION : %s(%#x)\n", __FUNCTION__, address);
-		generateException(cpu, EXCEPTION_BADADDR_STORE, 0);
+		printf("Unable to find bank for loading memory 0x%08X.\n", address);
 		exit(1);
 	}
 	int addr = (address ^ bank->addrStart);
@@ -74,27 +88,27 @@ u8 readByteBE(mipsCpu* cpu, u32 address)
 u16 readHwordBE(mipsCpu* cpu, u32 address)
 {
 	return	(readByte(cpu, address + 0) <<  8) |
-	(readByte(cpu, address + 1) <<  0) ;
+		(readByte(cpu, address + 1) <<  0) ;
 }
 
 u32 readWordBE(mipsCpu* cpu, u32 address)
 {
 	return	(readByte(cpu, address + 0) << 24) |
-	(readByte(cpu, address + 1) << 16) |
-	(readByte(cpu, address + 2) <<  8) |
-	(readByte(cpu, address + 3) <<  0) ;
+		(readByte(cpu, address + 1) << 16) |
+		(readByte(cpu, address + 2) <<  8) |
+		(readByte(cpu, address + 3) <<  0) ;
 }
 
 u64 readDwordBE(mipsCpu* cpu, u32 address)
 {
 	return	((u64)readByte(cpu, address + 0) << 56) |
-	((u64)readByte(cpu, address + 1) << 48) |
-	((u64)readByte(cpu, address + 2) << 40) |
-	((u64)readByte(cpu, address + 3) << 32) |
-	((u64)readByte(cpu, address + 4) << 24) |
-	((u64)readByte(cpu, address + 5) << 16) |
-	((u64)readByte(cpu, address + 6) <<  8) |
-	((u64)readByte(cpu, address + 7) <<  0) ;	
+		((u64)readByte(cpu, address + 1) << 48) |
+		((u64)readByte(cpu, address + 2) << 40) |
+		((u64)readByte(cpu, address + 3) << 32) |
+		((u64)readByte(cpu, address + 4) << 24) |
+		((u64)readByte(cpu, address + 5) << 16) |
+		((u64)readByte(cpu, address + 6) <<  8) |
+		((u64)readByte(cpu, address + 7) <<  0) ;	
 }
 
 u8 readByteLE(mipsCpu* cpu, u32 address)
@@ -105,27 +119,27 @@ u8 readByteLE(mipsCpu* cpu, u32 address)
 u16 readHwordLE(mipsCpu* cpu, u32 address)
 {
 	return	(readByte(cpu, address + 1) <<  8) |
-	(readByte(cpu, address + 0) <<  0);
+		(readByte(cpu, address + 0) <<  0);
 }
 
 u32 readWordLE(mipsCpu* cpu, u32 address)
 {
 	return	(readByte(cpu, address + 3) << 24) |
-	(readByte(cpu, address + 2) << 16) |
-	(readByte(cpu, address + 1) <<  8) |
-	(readByte(cpu, address + 0) <<  0) ;
+		(readByte(cpu, address + 2) << 16) |
+		(readByte(cpu, address + 1) <<  8) |
+		(readByte(cpu, address + 0) <<  0) ;
 }
 
 u64 readDwordLE(mipsCpu* cpu, u32 address)
 {
 	return	((u64)readByte(cpu, address + 7) << 56) |
-	((u64)readByte(cpu, address + 6) << 48) |
-	((u64)readByte(cpu, address + 5) << 40) |
-	((u64)readByte(cpu, address + 4) << 32) |
-	((u64)readByte(cpu, address + 3) << 24) |
-	((u64)readByte(cpu, address + 2) << 16) |
-	((u64)readByte(cpu, address + 1) <<  8) |
-	((u64)readByte(cpu, address + 0) <<  0) ;	
+		((u64)readByte(cpu, address + 6) << 48) |
+		((u64)readByte(cpu, address + 5) << 40) |
+		((u64)readByte(cpu, address + 4) << 32) |
+		((u64)readByte(cpu, address + 3) << 24) |
+		((u64)readByte(cpu, address + 2) << 16) |
+		((u64)readByte(cpu, address + 1) <<  8) |
+		((u64)readByte(cpu, address + 0) <<  0) ;	
 }
 
 u32 readOpcode(mipsCpu* cpu, u32 address)

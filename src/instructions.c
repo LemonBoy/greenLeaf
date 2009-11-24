@@ -17,6 +17,11 @@
 
 #define MAXMASK(b)	(((1LL << ((b) - 1)) - 1) + (1LL << ((b) - 1)))
 
+/* #define DOJUMP(loc, size)	setJump(cpu, loc) */
+#define DOJUMP(loc, size)	setJump(cpu, _zeroextend(loc << 2, size + 2, BITCOUNT))
+/* #define BRANCH(loc, size)	setJump(cpu, getPC(cpu) + loc) */
+#define BRANCH(loc, size)	setJump(cpu, getPC(cpu) + _signextend(loc << 2, size + 2, BITCOUNT))
+
 void cop0Handler(mipsCpu* cpu, mipsDasm *dasm)
 {
 	switch(readRegister(cpu, dasm->rs)) {
@@ -130,7 +135,7 @@ MIPS_INSTRUCTION( ADDI )
 	mipsRegister imm = _signextend(dasm->immediate, 16, BITCOUNT);
 	s32 val = readRegister(cpu, dasm->rs) + imm;
 	mipsRegister out = _signextend(val, 32, BITCOUNT);
-	setRegister(cpu, dasm->rd, out);
+	setRegister(cpu, dasm->rt, out);
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
 
@@ -606,7 +611,7 @@ MIPS_INSTRUCTION( DSRA32 )
 MIPS_INSTRUCTION( BEQ )
 {
 	if(readRegister(cpu, dasm->rs) == readRegister(cpu, dasm->rt))
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -615,7 +620,7 @@ MIPS_INSTRUCTION( BEQ )
 MIPS_INSTRUCTION( BEQL )
 {
 	if(readRegister(cpu, dasm->rs) == readRegister(cpu, dasm->rt)) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -626,7 +631,7 @@ MIPS_INSTRUCTION( BEQL )
 MIPS_INSTRUCTION( BNE )
 {
 	if(readRegister(cpu, dasm->rs) != readRegister(cpu, dasm->rt))
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -635,7 +640,7 @@ MIPS_INSTRUCTION( BNE )
 MIPS_INSTRUCTION( BNEL )
 {
 	if(readRegister(cpu, dasm->rs) != readRegister(cpu, dasm->rt)) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -646,7 +651,7 @@ MIPS_INSTRUCTION( BNEL )
 MIPS_INSTRUCTION( BGEZ )
 {
 	if(readRegister(cpu, dasm->rs) >= 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -655,7 +660,7 @@ MIPS_INSTRUCTION( BGEZ )
 MIPS_INSTRUCTION( BGEZL )
 {
 	if(readRegister(cpu, dasm->rs) >= 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -667,7 +672,7 @@ MIPS_INSTRUCTION( BGEZAL )
 {
 	doLink(cpu, 0, 0);
 	if(readRegister(cpu, dasm->rs) >= 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -677,7 +682,7 @@ MIPS_INSTRUCTION( BGEZALL )
 {
 	doLink(cpu, 0, 0);
 	if(readRegister(cpu, dasm->rs) >= 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -688,7 +693,7 @@ MIPS_INSTRUCTION( BGEZALL )
 MIPS_INSTRUCTION( BGTZ )
 {
 	if(readRegister(cpu, dasm->rs) > 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -697,7 +702,7 @@ MIPS_INSTRUCTION( BGTZ )
 MIPS_INSTRUCTION( BGTZL )
 {
 	if(readRegister(cpu, dasm->rs) > 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -708,7 +713,7 @@ MIPS_INSTRUCTION( BGTZL )
 MIPS_INSTRUCTION( BLEZ )
 {
 	if(readRegister(cpu, dasm->rs) <= 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -717,7 +722,7 @@ MIPS_INSTRUCTION( BLEZ )
 MIPS_INSTRUCTION( BLEZL )
 {
 	if(readRegister(cpu, dasm->rs) <= 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -728,7 +733,7 @@ MIPS_INSTRUCTION( BLEZL )
 MIPS_INSTRUCTION( BLTZ )
 {
 	if(readRegister(cpu, dasm->rs) < 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -737,7 +742,7 @@ MIPS_INSTRUCTION( BLTZ )
 MIPS_INSTRUCTION( BLTZL )
 {
 	if(readRegister(cpu, dasm->rs) < 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -749,7 +754,7 @@ MIPS_INSTRUCTION( BLTZAL )
 {
 	doLink(cpu, 0, 0);
 	if(readRegister(cpu, dasm->rs) < 0)
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	else
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
@@ -759,7 +764,7 @@ MIPS_INSTRUCTION( BLTZALL )
 {
 	doLink(cpu, 0, 0);
 	if(readRegister(cpu, dasm->rs) < 0) {
-		advancePC(cpu, _signextend(dasm->immediate << 2, 18, BITCOUNT));
+		BRANCH(dasm->immediate, 16);
 	}else{
 		/* We need to nullify the instruction in the branch delay slot here. */
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
@@ -773,27 +778,27 @@ MIPS_INSTRUCTION( BLTZALL )
 /* Jump. */
 MIPS_INSTRUCTION( J )
 {
-	setJump(cpu, dasm->jump);
+	DOJUMP(dasm->jump, 26);
 }
 
 /* Jump and link. */
 MIPS_INSTRUCTION( JAL )
 {
 	doLink(cpu, 0, 0);
-	setJump(cpu, dasm->jump);
+	DOJUMP(dasm->jump, 26);
 }
 
 /* Jump and link register. */
 MIPS_INSTRUCTION( JALR )
 {
 	doLink(cpu, 1, dasm->rd);
-	setJump(cpu, readRegister(cpu, dasm->rs));
+	setPC(cpu, readRegister(cpu, dasm->rs));
 }
 
 /* Jump register. */
 MIPS_INSTRUCTION( JR )
 {
-	setJump(cpu, readRegister(cpu, dasm->rs));
+	setPC(cpu, readRegister(cpu, dasm->rs));
 }
 
 
