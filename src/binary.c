@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "memory.h"
 #include "elf_eabi.h"
 #include "emulator.h"
+
+#include "machdep/mach_memory.h"
 
 inline int isValidMipsElf(Elf32_Ehdr *elfHdr)
 {
@@ -74,7 +77,7 @@ u32 openElf(mipsCpu* cpu, char *path)
 u32 openRaw(mipsCpu* cpu, char *path, u32 addr)
 {
 	u8* buf = NULL;
-	size_t sz;
+	u32 sz;
 	FILE* fd = fopen(path, "rb");
 	if(fd == NULL) {
 		return -1;

@@ -1374,21 +1374,29 @@ MIPS_INSTRUCTION( ERET )
 /* Load double-word to coprocessor 1. */
 MIPS_INSTRUCTION( LDC1 )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction LDC1 unsupported!\n");
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Load double-word to coprocessor 2. */
 MIPS_INSTRUCTION( LDC2 )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction LDC2 unsupported!\n");
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Load word to coprocessor 1. */
@@ -1414,21 +1422,29 @@ MIPS_INSTRUCTION( LWC2 )
 /* Store double-word to coprocessor 1. */
 MIPS_INSTRUCTION( SDC1 )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction SDC1 unsupported!\n");
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Store double-word to coprocessor 2. */
 MIPS_INSTRUCTION( SDC2 )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction SDC2 unsupported!\n");
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Store word to coprocessor 1. */
@@ -1472,21 +1488,29 @@ MIPS_COP_INSTRUCTION( MTCz )
 /* Double-word move from coprocessor z. */
 MIPS_COP_INSTRUCTION( DMFCz )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction DMFC%d unsupported!\n", cop);
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Double-word move to coprocessor z. */
 MIPS_COP_INSTRUCTION( DMTCz )
 {
+#if BITCOUNT == 64
 #ifdef DEBUG
 	printf("Instruction DMTC%d unsupported!\n", cop);
 #endif
 	/* TODO: Implement */
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+#else
+	MIPS_INSTR_EXEC( RESV )
+#endif
 }
 
 /* Move control from coprocessor z. */

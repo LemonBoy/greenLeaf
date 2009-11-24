@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+
 #include "memory.h"
 #include "emulator.h"
 #include "instructions.h"
@@ -142,71 +143,6 @@ void printRegisters(mipsCpu* cpu)
 #endif
 }
 
-/* 
- * Initialize the cpu emulation core. 
- */
-
-mipsCpu* initializeCPU(u8 endian, u32 stackPtr)
-{
-	mipsCpu* cpu = calloc(sizeof(mipsCpu), 1);
-	int reg, cop;
-	
-	for(reg = 0; reg < 34; reg++) {
-		cpu->r[reg] = ((mipsRegister)0);
-		if(reg == 29)
-			cpu->r[reg] = ((mipsRegister)0) + stackPtr;
-	}
-	
-	for(cop = 0; cop < 3; cop++)
-		for(reg = 0; reg < 32; reg++)
-			cpu->cr[reg][cop] = ((mipsRegister)0);
-	
-	cpu->pc = ((mipsRegister)0);
-	cpu->nPc = ((mipsRegister)0);
-	cpu->bOpcode = ((mipsRegister)0);
-	
-	cpu->endian = endian;
-	cpu->rootBank = NULL;
-	cpu->mappedBanks = NULL;
-	
-	switch(cpu->endian) {
-		case ENDIANNESS_LE:
-#ifdef DEBUG
-			printf("Cpu endianess set to little endian\n");
-#endif
-			cpu->readByte   = readByteLE;
-			cpu->readHword  = readHwordLE;
-			cpu->readWord   = readWordLE;
-			cpu->readDword  = readDwordLE;
-			
-			cpu->writeByte  = writeByteLE;
-			cpu->writeHword = writeHwordLE;
-			cpu->writeWord  = writeWordLE;
-			cpu->writeDword = writeDwordLE;				
-			break;
-		
-		case ENDIANNESS_BE:
-#ifdef DEBUG
-			printf("Cpu endianess set to big endian\n");
-#endif				
-			cpu->readByte  = readByteBE;
-			cpu->readHword = readHwordBE;
-			cpu->readWord  = readWordBE;
-			cpu->readDword = readDwordBE;
-			
-			cpu->writeByte  = writeByteBE;
-			cpu->writeHword = writeHwordBE;
-			cpu->writeWord  = writeWordBE;
-			cpu->writeDword = writeDwordBE;					
-			break;
-		default:
-			printf("Error: Endian setting is neither BE nor LE.\n");
-			assert((cpu->endian == ENDIANNESS_BE) || (cpu->endian == ENDIANNESS_LE));
-			break;
-	}
-	return cpu;
-}
-
 #define RESET_VECTOR_BEV_0 	(0x0000000080000000)
 #define RESET_VECTOR_BEV_1 	(0x00000000BFC00200)
 #define DEFAULT_RESET_VECTOR 	(RESET_VECTOR_BEV_1)
@@ -215,23 +151,30 @@ mipsCpu* initializeCPU(u8 endian, u32 stackPtr)
    Check out page 141 for all the exception codes.
    Check page 152 and 175 for more about the exception vectors */
 
-/* TODO: Convert to proper 32bit code for 32bit mode! */
-
 void generateException(mipsCpu* cpu, u32 exception, u32 delay)
 {
+#if BITCOUNT == 64
+#define SHIFTVAL	63
+#define ANDVAL1		0xFFFFFFFFFFFFFF00
+#define ANDVAL2		0x3FFFFFFFFFFFFF00
+#else
+#define SHIFTVAL	31
+#define ANDVAL1		0xFFFFFF00
+#define ANDVAL2		0x3FFFFF00
+#endif
 	mipsRegister resetVectorAddress = DEFAULT_RESET_VECTOR;
 	
 	printf("Caught exception 0x%08X\n", exception);
 
 	setCopRegister(cpu, 0, COP0_REG_EPC, cpu->pc);
-	setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0xFFFFFF00) | (exception << 2));
+	setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & ANDVAL1) | (exception << 2));
 
 	if (delay) {
 		setCopRegister(cpu, 0, COP0_REG_EPC, readCopRegister(cpu, 0, COP0_REG_EPC) - 4);
 		/* Set the BV bit in the CAUSE register if we are in a branch delay */
-		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFF00) | (((mipsRegister)1) << 31));
+		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & ANDVAL2) | (((mipsRegister)1) << SHIFTVAL));
 	} else {
-		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & 0x3FFFFF00) | (((mipsRegister)0) << 31));
+		setCopRegister(cpu, 0, COP0_REG_CAUSE, (readCopRegister(cpu, 0, COP0_REG_CAUSE) & ANDVAL2) | (((mipsRegister)0) << SHIFTVAL));
 	}
 	
 	if ((readCopRegister(cpu, 0, COP0_REG_STATUS) >> 22) & 0x1) { /* BEV bit is set. */
@@ -284,16 +227,5 @@ void executeOpcode(mipsCpu* cpu, u32 opcode)
 
 void runProcessor(mipsCpu* cpu)
 {
-	u32 opcode;
-	
-	if(cpu->endian == ENDIANNESS_LE) {
-		opcode = (u8)(cpu->readByte(cpu, getNextPC(cpu) + 3)) << 24 | 
-			 (u8)(cpu->readByte(cpu, getNextPC(cpu) + 2)) << 16 | 
-			 (u8)(cpu->readByte(cpu, getNextPC(cpu) + 1)) << 8  | 
-			 (u8)(cpu->readByte(cpu, getNextPC(cpu) + 0)) << 0;
-	}else{
-		opcode = (u32)(cpu->readWord(cpu, getNextPC(cpu)));
-	}
-	
-	executeOpcode(cpu, opcode);
+	executeOpcode(cpu, cpu->readOpcode(cpu, getNextPC(cpu)));
 }
