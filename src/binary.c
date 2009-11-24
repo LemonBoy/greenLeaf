@@ -6,7 +6,7 @@
 #include "elf_eabi.h"
 #include "emulator.h"
 
-#include "machdep/mach_memory.h"
+#include "mach_memory.h"
 
 inline int isValidMipsElf(Elf32_Ehdr *elfHdr)
 {

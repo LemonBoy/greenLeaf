@@ -1,12 +1,7 @@
 #ifndef _TYPES
 #define _TYPES
 
-#define BITCOUNT		(64)
-//#define BITCOUNT		(32)
-
-#if ((BITCOUNT != 64) && (BITCOUNT != 32))
-#error Target processor must be 32bit or 64bit!
-#endif
+#include "mach_config.h"
 
 typedef unsigned char		u8;
 typedef unsigned short		u16;
