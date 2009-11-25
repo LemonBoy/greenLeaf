@@ -86,6 +86,12 @@ int main(int argc, char *argv[])
 	printf("Fast memory %lld\n",		ret);
 	if(ret < 0) {
 		printf("Failed.\n");
+		exit(8);
+	}
+	ret = mapMemory(cpu, 0x10000000, 0x000000FF, FLAG_RAM);
+	printf("Bootstrap Support %lld\n",	ret);
+	if(ret < 0) {
+		printf("Failed.\n");
 		exit(7);
 	}
 	ret = mapMemory(cpu, 0x80000000, 0x00400000, FLAG_RAM);
@@ -106,8 +112,8 @@ int main(int argc, char *argv[])
 		printf("Failed.\n");
 		exit(4);
 	}
-	ret = mapMemory(cpu, 0x10000000, 0x000000FF, FLAG_RAM);
-	printf("Bootstrap Support %lld\n",	ret);
+	ret = mapMemory(cpu, HW_REGS_ADDR, HW_REGS_SIZE, FLAG_RAM);
+	printf("Hardware Registers %lld\n",	ret);
 	if(ret < 0) {
 		printf("Failed.\n");
 		exit(3);

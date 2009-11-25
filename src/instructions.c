@@ -1183,14 +1183,14 @@ MIPS_INSTRUCTION( MTLO )
 MIPS_INSTRUCTION( SYSCALL )
 {
 	generateException(cpu, EXCEPTION_SYSCALL, dasm->delay);
-	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+/*	advancePC(cpu, DEFAULT_INSTRUCTION_PC);	*/
 }	
 
 /* Breakpoint. */
 MIPS_INSTRUCTION( BREAK )
 {
 	generateException(cpu, EXCEPTION_BREAKPOINT, dasm->delay);
-	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
+/*	advancePC(cpu, DEFAULT_INSTRUCTION_PC);	*/
 }	
 
 /* Synchronize. */
