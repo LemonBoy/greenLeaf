@@ -57,7 +57,11 @@ void bitdump(void * data, int sz)
 	printf("\n");
 }
 
+#ifdef __MACOSX__
+int osx_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
 	char* filename;
 	s64 ret;
@@ -151,10 +155,10 @@ int main(int argc, char *argv[])
 	for(;;) {
 #ifdef TICK_AT_A_TIME
 		fgetc(stdin);
-#else
-		usleep(250);	/* Lets have some delay so we don't blow the thing up */
 #endif
+		HWPreUpdate();
 		runProcessor(cpu);
+		HWPostUpdate();
 /*		printRegisters(cpu); */
 	}
 	

@@ -9,6 +9,12 @@ enum {
 	HW_ADDRESS_PRINT_TEXT	= 0x00000004,
 	HW_ADDRESS_PRINT_HEX	= 0x00000008,
 	HW_ADDRESS_PRINT_INT	= 0x00000010,
+	HW_ADDRESS_POWER	= 0x00000018,
+};
+
+enum {
+	HW_POWERON_GRAPHICS	= 0x00000001,
+	HW_POWERON_INPUT	= 0x00000002,
 };
 
 #define HW_VERSION	(0x00000001)
@@ -25,5 +31,7 @@ void writeHWRegHword(mipsCpu* cpu, u32 address, u16 value);
 void writeHWRegWord (mipsCpu* cpu, u32 address, u32 value);
 void writeHWRegDword(mipsCpu* cpu, u32 address, u64 value);
 int  HWInit         ();
+void HWPreUpdate    ();
+void HWPostUpdate   ();
 
 #endif

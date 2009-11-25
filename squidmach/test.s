@@ -14,6 +14,8 @@ info:
 	.asciiz "µChecksum 0.1 - (C) 2009 - The Lemon Man & SquidMan\nRunning bootstrap v"
 info2:
 	.asciiz "\nHardware version "
+xsumstr:
+	.asciiz "Checksum: "
 newline:
 	.asciiz "\n"
 bootstrap_dot:
@@ -56,8 +58,14 @@ _main:
 	li   $a1, 0x20
 	jal  eatStream
 	nop
+	la   $a0, xsumstr
+	li   $v0, SYSCALLS_PRINT_TEXT
+	syscall
 	move $a0, $v0
 	li   $v0, SYSCALLS_PRINT_HEX
+	syscall
+	la   $a0, newline
+	li   $v0, SYSCALLS_PRINT_TEXT
 	syscall
 hang:
 	j    hang

@@ -14,6 +14,10 @@
 	.equ	HW_REG_PRINT_TEXT,			0x40000004
 	.equ	HW_REG_PRINT_HEX,			0x40000008
 	.equ	HW_REG_PRINT_INT,			0x40000010
+	.equ	HW_REG_POWER,				0x40000018
+	
+	.equ	HW_POWERON_GRAPHICS,			0x00000001
+	.equ	HW_POWERON_INPUT,			0x00000002
 	
 	.equ	BOOTSTRAP_MAJOR,			0
 	.equ	BOOTSTRAP_MINOR,			1
@@ -38,7 +42,11 @@ _start:
         mfc0 $t0, $12
         or   $t0, 0x400000
         mtc0 $t0, $12
-
+	
+	ori  $a0, $zero, HW_POWERON_GRAPHICS
+	ori  $a0, $a0,   HW_POWERON_INPUT
+	sw   $a0, HW_REG_POWER($zero)
+	
         la   $a0, about_1
 	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
 	li   $a0, BOOTSTRAP_MAJOR		/* Bootstrap major version. */
@@ -78,7 +86,6 @@ _start:
 	move $t9, $zero
 	move $k0, $zero
 	move $k1, $zero
-	move $ra, $zero
 	
 	li   $a0, BOOTSTRAP_MAJOR		/* a0 is bootstrap major version. */
 	li   $a1, BOOTSTRAP_MINOR		/* a1 is bootstrap minor version. */

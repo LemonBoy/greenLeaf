@@ -3,6 +3,12 @@
 
 #include "mach_config.h"
 
+#ifdef __APPLE__
+#ifndef __MACOSX__
+#define __MACOSX__	1
+#endif
+#endif
+
 typedef unsigned char		u8;
 typedef unsigned short		u16;
 typedef unsigned int		u32;

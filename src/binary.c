@@ -9,7 +9,7 @@
 
 #include "mach_memory.h"
 
-inline int isValidMipsElf32(Elf32_Ehdr *elfHdr)
+static int isValidMipsElf32(Elf32_Ehdr *elfHdr)
 {
 	if(memcmp((char *)elfHdr->e_ident, ELFMAG, SELFMAG) == 0) {	/* Is a valid elf ? */
 		if(elfHdr->e_machine == EM_MIPS) {			/* A mips one ? */
@@ -101,7 +101,7 @@ u32 openElf32(mipsCpu* cpu, char *path)
 	return elfHdr.e_entry;
 }
 
-inline int isValidMipsElf64(Elf64_Ehdr *elfHdr)
+static int isValidMipsElf64(Elf64_Ehdr *elfHdr)
 {
 	if(memcmp((char *)elfHdr->e_ident, ELFMAG, SELFMAG) == 0) {	/* Is a valid elf ? */
 		if(elfHdr->e_machine == EM_MIPS) {			/* A mips one ? */

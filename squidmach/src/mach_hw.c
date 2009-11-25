@@ -10,10 +10,38 @@
 
 #include "mach_memory.h"
 #include "mach_hw.h"
+#include "graphics.h"
+#include "input.h"
 
 u32 getHWRevision(mipsCpu* cpu)
 {
 	return HW_VERSION;
+}
+
+void doHWPower(mipsCpu* cpu, u32 value)
+{
+	if(value & HW_POWERON_GRAPHICS) {
+#ifdef DEBUG
+		printf("Graphics turned on.\n");
+#endif
+		if(!graphics_poweron())
+#ifdef DEBUG
+			printf("FAILED.\n");
+#else
+			;
+#endif
+	}
+	if(value & HW_POWERON_INPUT) {
+#ifdef DEBUG
+		printf("Input turned on.\n");
+#endif
+		if(!input_poweron())
+#ifdef DEBUG
+			printf("FAILED.\n");
+#else
+			;
+#endif
+	}
 }
 
 void doHWPrintText(mipsCpu* cpu, u32 addr)
@@ -21,92 +49,74 @@ void doHWPrintText(mipsCpu* cpu, u32 addr)
 	char ch;
 #ifdef DEBUG
 	printf("Printing Text: ");
-	fflush(stdout);
 #endif
 	while((ch = cpu->readByte(cpu, addr++)) != 0) {
-		printf("%c", ch);
-		fflush(stdout);
-	}
+		graphics_printf("%c", ch);
+		}
 }
 
 void doHWPrintHex64(mipsCpu* cpu, u64 val)
 {
 #ifdef DEBUG
 	printf("Printing Hex: ");
-	fflush(stdout);
 #endif
-	printf("%016llX\n", val);
-	fflush(stdout);
+	graphics_printf("%016llX", val);
 }
 
 void doHWPrintInt64(mipsCpu* cpu, s64 val)
 {
 #ifdef DEBUG
 	printf("Printing Integer: ");
-	fflush(stdout);
 #endif
-	printf("%lld", val);
-	fflush(stdout);
+	graphics_printf("%lld", val);
 }
 
 void doHWPrintHex32(mipsCpu* cpu, u32 val)
 {
 #ifdef DEBUG
 	printf("Printing Hex: ");
-	fflush(stdout);
 #endif
-	printf("%08X\n", val);
-	fflush(stdout);
+	graphics_printf("%08X", val);
 }
 
 void doHWPrintInt32(mipsCpu* cpu, s32 val)
 {
 #ifdef DEBUG
 	printf("Printing Integer: ");
-	fflush(stdout);
 #endif
-	printf("%d", val);
-	fflush(stdout);
+	graphics_printf("%d", val);
 }
 
 void doHWPrintHex16(mipsCpu* cpu, u16 val)
 {
 #ifdef DEBUG
 	printf("Printing Hex: ");
-	fflush(stdout);
 #endif
-	printf("%04X\n", val);
-	fflush(stdout);
+	graphics_printf("%04X", val);
 }
 
 void doHWPrintInt16(mipsCpu* cpu, s16 val)
 {
 #ifdef DEBUG
 	printf("Printing Integer: ");
-	fflush(stdout);
 #endif
-	printf("%d", val);
-	fflush(stdout);
+	graphics_printf("%d", val);
 }
 
 void doHWPrintHex8(mipsCpu* cpu, u8 val)
 {
 #ifdef DEBUG
 	printf("Printing Hex: ");
-	fflush(stdout);
 #endif
-	printf("%02X\n", val);
-	fflush(stdout);
+	graphics_printf("%02X", val);
 }
 
 void doHWPrintInt8(mipsCpu* cpu, s8 val)
 {
 #ifdef DEBUG
 	printf("Printing Integer: ");
-	fflush(stdout);
 #endif
-	printf("%d", val);
-	fflush(stdout);
+	graphics_printf("%d", val);
 }
 
 u8 readHWRegByte(mipsCpu* cpu, u32 address)
@@ -199,6 +209,9 @@ void writeHWRegWord(mipsCpu* cpu, u32 address, u32 value)
 		case HW_ADDRESS_PRINT_INT:
 			doHWPrintInt32(cpu, value);
 			break;
+		case HW_ADDRESS_POWER:
+			doHWPower(cpu, value);
+			break;
 		default:
 			break;
 	}
@@ -221,7 +234,22 @@ void writeHWRegDword(mipsCpu* cpu, u32 address, u64 value)
 
 int HWInit()
 {
+	if(!graphics_setup())
+		return 0;
+	if(!input_setup())
+		return 0;
 	return 1;
 }
 
+void HWPreUpdate()
+{
+	input_pre_update();
+	graphics_pre_update();
+}
+
+void HWPostUpdate()
+{
+	graphics_post_update();
+	input_post_update();
+}
 
