@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 		fgetc(stdin);
 #endif
 		HWPreUpdate();
-		runProcessor(cpu);
+		runProcessor(cpu, 0);
 		HWPostUpdate();
 /*		printRegisters(cpu); */
 	}

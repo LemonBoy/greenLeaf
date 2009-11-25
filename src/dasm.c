@@ -101,8 +101,8 @@ void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm **ret)
 			dasm->delay = 0;
 		}
 	}else if(dasm->instruction == 1) {
-		if(readRegister(cpu, dasm->rt) <= REGIMM_INST_COUNT) {
-			dasm->delay = regimmInstructionTable[readRegister(cpu, dasm->rt)].delay;
+		if(dasm->rt <= REGIMM_INST_COUNT) {
+			dasm->delay = regimmInstructionTable[dasm->rt].delay;
 		}else{
 #ifdef DEBUG
 			printf("rt is too high!\n");
@@ -110,13 +110,13 @@ void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm **ret)
 			dasm->delay = 0;
 		}
 	}else if((dasm->instruction & ~0x3) == 0x10) {
-		if(readRegister(cpu, dasm->rs) <= COPROC_INST_COUNT) {
-			if(readRegister(cpu, dasm->rs) == 0x8)
-				dasm->delay = coprocBcInstructionTable[readRegister(cpu, dasm->rt)].delay;
-			else if(readRegister(cpu, dasm->rs) & 0x10)
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			if(dasm->rs == 0x8)
+				dasm->delay = coprocBcInstructionTable[dasm->rt].delay;
+			else if(dasm->rs & 0x10)
 				dasm->delay = cop0InstructionTable[dasm->funct].delay;
 			else
-				dasm->delay = coprocInstructionTable[readRegister(cpu, dasm->rs)].delay;
+				dasm->delay = coprocInstructionTable[dasm->rs].delay;
 		}else{
 #ifdef DEBUG
 			printf("rs is too high!\n");

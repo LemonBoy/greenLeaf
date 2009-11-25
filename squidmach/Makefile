@@ -19,7 +19,7 @@ MIPSLD = mips-ld
 MIPSASFLAGS = -mabi=o64 -EL -mips3
 MIPSLDFLAGSGENERIC = -nostdlib -EL -mips3 --oformat elf64-little -s
 MIPSLDFLAGSBOOT = $(MIPSLDFLAGSGENERIC) --section-start .code=0xBFC00000 --section-start .info=0xBFC10000 -e 0xBFC00000
-MIPSLDFLAGS = $(MIPSLDFLAGSGENERIC) --section-start .code=0xC0000000 --section-start .data=0xC0010000 --section-start .bootsupport=0x10000000 -e 0xC0000000
+MIPSLDFLAGS = $(MIPSLDFLAGSGENERIC) --section-start .code=0xC0000000 --section-start .data=0xC0100000 --section-start .bootsupport=0x10000000 -e 0xC0000000
 
 all: $(OUTPUT)
 %.o: %.m

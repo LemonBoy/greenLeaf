@@ -7,6 +7,7 @@
 #define ENDIANNESS_LE		(0x01)
 
 #define DEFAULT_INSTRUCTION_PC	4
+#define DEFAULT_CYCLES		1
 
 #define REGISTER_HI 		32
 #define REGISTER_LO		33
@@ -64,6 +65,8 @@ typedef struct _mipsCpu {
 	/* Program counters. */
 	mipsRegister pc;
 	mipsRegister nPc;
+	/* Cycle counter */
+	int cycles;
 	/* Registers */
 	mipsRegister r[34];
 	mipsRegister cr[32][3];
@@ -89,7 +92,7 @@ typedef struct _mipsCpu {
  * Function prototypes.
  */
 
-void		runProcessor	 (mipsCpu* cpu);
+void		runProcessor	 (mipsCpu* cpu, int cycles);
 void		executeOpcode	 (mipsCpu* cpu, u32 opcode);
 void		printRegisters	 (mipsCpu* cpu);
 void		generateException(mipsCpu* cpu, u32 exception, u32 delay);
@@ -104,6 +107,7 @@ void		setRegister	 (mipsCpu* cpu, mipsReg reg, mipsRegister value);
 mipsRegister	readRegister	 (mipsCpu* cpu, mipsReg reg);
 
 void		advancePC	 (mipsCpu* cpu, mipsRegister nextPC);
+void		advanceCycles	 (mipsCpu* cpu, int cycles);
 void		setPC		 (mipsCpu* cpu, mipsRegister nextPC);
 void		setJump		 (mipsCpu* cpu, mipsJumpAddress jumpAddress);
 void		doLink		 (mipsCpu* cpu, int r, int reg);

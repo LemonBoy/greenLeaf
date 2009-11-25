@@ -63,6 +63,14 @@ mipsRegister readCopRegister(mipsCpu* cpu, u8 copNumber, mipsReg reg)
 	return cpu->cr[reg][copNumber];
 }
 
+void advanceCycles(mipsCpu* cpu, int cycles)
+{
+	cpu->cycles += cycles;
+#ifdef DEBUG	
+	printf("Cycles is now %d\n", cpu->cycles);
+#endif
+}
+
 void advancePC(mipsCpu* cpu, mipsRegister nextPC)
 {
 	cpu->pc   = cpu->nPc;
@@ -229,7 +237,9 @@ void executeOpcode(mipsCpu* cpu, u32 opcode)
 	execOpcode(cpu, opc);
 }
 
-void runProcessor(mipsCpu* cpu)
+void runProcessor(mipsCpu* cpu, int cycles)
 {
-	executeOpcode(cpu, cpu->readOpcode(cpu, getNextPC(cpu)));
+	if(cycles == 0) cycles = 1;
+	for(cpu->cycles = 0; cpu->cycles < cycles; )
+		executeOpcode(cpu, cpu->readOpcode(cpu, getNextPC(cpu)));
 }

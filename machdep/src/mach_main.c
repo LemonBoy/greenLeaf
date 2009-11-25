@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 #ifdef TICK_AT_A_TIME
 		fgetc(stdin);
 #endif
-		runProcessor(cpu);
+		runProcessor(cpu, 1);		/* Run a single cycle at a time */
 		//~ printRegisters(cpu);
 	}
 	

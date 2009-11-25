@@ -20,12 +20,16 @@ typedef struct {
 	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm);
 	char textDisasm[20];
 	u8 delay;
+	u8 cycles;
+	u8 pc;
 } mipsInstrTbl;
 
 typedef struct {
 	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm, int cop);
 	char textDisasm[20];
 	u8 delay;
+	u8 cycles;
+	u8 pc;
 } mipsCopInstrTbl;
 
 /* static char *registerName[34] = {
