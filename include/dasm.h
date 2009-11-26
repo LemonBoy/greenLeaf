@@ -2,56 +2,21 @@
 #define _DASM_H
 
 #include "types.h"
-#include "emulator.h"
 
-typedef struct _mipsDasm {
-	u8 delay;
-	u8 instruction;
-	s8 rs;
-	s8 rt;
-	s8 rd;
-	s32 shift;
-	s16 immediate;
-	s32 jump;
-	s8 funct;
-} mipsDasm;
-
-typedef struct _mipsInstrTbl {
-	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm);
-	char textDisasm[20];
-	u8 delay;
-	u8 cycles;
-	u8 pc;
-} mipsInstrTbl;
-
-typedef struct _mipsCopInstrTbl {
-	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm, int cop);
-	char textDisasm[20];
-	u8 delay;
-	u8 cycles;
-	u8 pc;
-} mipsCopInstrTbl;
-
-/* static char *registerName[34] = {
-	"zr" , "r1" , "r2" , "r3" , "r4" , "r5" , "r6" , "r7" , "r8" , "r9" , "r10",
-	"r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19", "r20",
-	"r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29", "r30",
-	"lr", "HI", "LO"
-}; */
+char* dasmFormat(char *haystack, mipsDasm *dasm);
 
 char *registerName[34];
 
 char* registerToName(mipsRegister reg);
-char* dasmFormat(char *haystack, mipsDasm *dasm);
 
-#include "instructions.h"
+extern mipsInstrTbl cop0InstructionTable[];
+extern mipsCopInstrTbl coprocBcInstructionTable[];
+extern mipsCopInstrTbl coprocInstructionTable[];
+extern mipsInstrTbl regimmInstructionTable[];
+extern mipsInstrTbl specialInstructionTable[];
+extern mipsInstrTbl instructionTable[];
 
-extern struct _mipsInstrTbl cop0InstructionTable[];
-extern struct _mipsCopInstrTbl coprocBcInstructionTable[];
-extern struct _mipsCopInstrTbl coprocInstructionTable[];
-extern struct _mipsInstrTbl regimmInstructionTable[];
-extern struct _mipsInstrTbl specialInstructionTable[];
-extern struct _mipsInstrTbl instructionTable[];
+#include "emulator.h"
 
 INLINE void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm *ret)
 {

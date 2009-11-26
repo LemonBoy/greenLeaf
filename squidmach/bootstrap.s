@@ -33,6 +33,8 @@ about_3:
 	.asciiz "Protected under the GNU GPLv2\n\n"
 period:
 	.asciiz "."
+wat:
+	.asciiz "End bootstrap. Launching executable...\n"
 
 .section .code, "ax", @progbits
 	.org 0x0000			/* Will be at 0xBFC00000 */
@@ -47,7 +49,15 @@ _start:
 	ori  $a0, $a0,   HW_POWERON_INPUT
 	sw   $a0, HW_REG_POWER($zero)
 	
-        la   $a0, about_1
+        sd   $k0, HW_REG_PRINT_INT($zero)	/* Print integer. */
+	addi $k0, $k0, 1
+        la   $a0, period
+	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
+	sd   $v0, HW_REG_PRINT_INT($zero)	/* Print integer. */
+        la   $a0, period
+	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
+
+	la   $a0, about_1
 	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
 	li   $a0, BOOTSTRAP_MAJOR		/* Bootstrap major version. */
 	sd   $a0, HW_REG_PRINT_INT($zero)	/* Print integer. */
@@ -64,7 +74,6 @@ _start:
         la   $a0, about_3
 	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
 
-	move $v0, $zero
 	move $v1, $zero
 	move $t0, $zero
 	move $t1, $zero
@@ -84,9 +93,10 @@ _start:
 	move $s7, $zero
 	move $t8, $zero
 	move $t9, $zero
-	move $k0, $zero
 	move $k1, $zero
 	
+        la   $a0, wat
+	sw   $a0, HW_REG_PRINT_TEXT($zero)	/* Print text. */
 	li   $a0, BOOTSTRAP_MAJOR		/* a0 is bootstrap major version. */
 	li   $a1, BOOTSTRAP_MINOR		/* a1 is bootstrap minor version. */
 	li   $a2, BOOTSTRAP_REV			/* a2 is bootstrap revision. */

@@ -1466,178 +1466,178 @@ MIPS_COP_INSTRUCTION( BCzTL )
 /*****************************************************************************/
 /* General table with all opcodes. */
 mipsInstrTbl instructionTable[] = {
-/*00*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Special */
-/*01*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Regimm */
-/*02*/	INST_ENTRY( J,		" %j",		1, DEFAULT_CYCLES, 0 ),
-/*03*/	INST_ENTRY( JAL,	" %j",		1, DEFAULT_CYCLES, 0 ),
-/*04*/	INST_ENTRY( BEQ,	" %s, %t, %i",	1, DEFAULT_CYCLES, 0 ),
-/*05*/	INST_ENTRY( BNE,	" %s, %t, %i",	1, DEFAULT_CYCLES, 0 ),
-/*06*/	INST_ENTRY( BLEZ,	" %s, %i",	1, DEFAULT_CYCLES, 0 ),
-/*07*/	INST_ENTRY( BGTZ,	" %s, %i",	1, DEFAULT_CYCLES, 0 ),
-/*08*/	INST_ENTRY( ADDI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*09*/	INST_ENTRY( ADDIU,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0A*/	INST_ENTRY( SLTI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0B*/	INST_ENTRY( SLTIU,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0C*/	INST_ENTRY( ANDI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0D*/	INST_ENTRY( ORI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0E*/	INST_ENTRY( XORI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0F*/	INST_ENTRY( LUI,	" %t, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*10*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* COP0 */
-/*11*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* COP1 */
-/*12*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* COP2 */
-/*13*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*14*/	INST_ENTRY( BEQL,	" %s, %t, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*15*/	INST_ENTRY( BNEL,	" %s, %t, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*16*/	INST_ENTRY( BLEZL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*17*/	INST_ENTRY( BGTZL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*18*/	INST_ENTRY( DADDI,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*18*/	INST_ENTRY( DADDIU,	" %t, %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1A*/	INST_ENTRY( LDL,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1B*/	INST_ENTRY( LDR,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1C*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1D*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1E*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1F*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*20*/	INST_ENTRY( LB,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*21*/	INST_ENTRY( LH,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*22*/	INST_ENTRY( LWL,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*23*/	INST_ENTRY( LW,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*24*/	INST_ENTRY( LBU,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*25*/	INST_ENTRY( LHU,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*26*/	INST_ENTRY( LWR,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*27*/	INST_ENTRY( LWU,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*28*/	INST_ENTRY( SB,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*29*/	INST_ENTRY( SH,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2A*/	INST_ENTRY( SWL,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2B*/	INST_ENTRY( SW,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2C*/	INST_ENTRY( SDL,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2D*/	INST_ENTRY( SDR,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2E*/	INST_ENTRY( SWR,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2F*/	INST_ENTRY( CACHE,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*30*/	INST_ENTRY( LL,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*31*/	INST_ENTRY( LWC1,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*32*/	INST_ENTRY( LWC2,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*33*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*34*/	INST_ENTRY( LLD,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*35*/	INST_ENTRY( LDC1,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*36*/	INST_ENTRY( LDC2,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*37*/	INST_ENTRY( LD,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*38*/	INST_ENTRY( SC,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*39*/	INST_ENTRY( SWC1,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*3A*/	INST_ENTRY( SWC2,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*3B*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*3C*/	INST_ENTRY( SCD,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*3D*/	INST_ENTRY( SDC1,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*3E*/	INST_ENTRY( SDC2,	" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*3F*/	INST_ENTRY( SD,		" %t, %i(%s)",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
+/*00*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Special */
+/*01*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Regimm */
+/*02*/	INST_ENTRY( J,		" %j",		1, 1,              0 ),
+/*03*/	INST_ENTRY( JAL,	" %j",		1, 1,              0 ),
+/*04*/	INST_ENTRY( BEQ,	" %s, %t, %i",	1, 1,              0 ),
+/*05*/	INST_ENTRY( BNE,	" %s, %t, %i",	1, 1,              0 ),
+/*06*/	INST_ENTRY( BLEZ,	" %s, %i",	1, 1,              0 ),
+/*07*/	INST_ENTRY( BGTZ,	" %s, %i",	1, 1,              0 ),
+/*08*/	INST_ENTRY( ADDI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*09*/	INST_ENTRY( ADDIU,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0A*/	INST_ENTRY( SLTI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0B*/	INST_ENTRY( SLTIU,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0C*/	INST_ENTRY( ANDI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0D*/	INST_ENTRY( ORI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0E*/	INST_ENTRY( XORI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0F*/	INST_ENTRY( LUI,	" %t, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*10*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* COP0 */
+/*11*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* COP1 */
+/*12*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* COP2 */
+/*13*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*14*/	INST_ENTRY( BEQL,	" %s, %t, %i",	1, 1,              0 ), 
+/*15*/	INST_ENTRY( BNEL,	" %s, %t, %i",	1, 1,              0 ), 
+/*16*/	INST_ENTRY( BLEZL,	" %s, %i",	1, 1,              0 ), 
+/*17*/	INST_ENTRY( BGTZL,	" %s, %i",	1, 1,              0 ), 
+/*18*/	INST_ENTRY( DADDI,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*18*/	INST_ENTRY( DADDIU,	" %t, %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*1A*/	INST_ENTRY( LDL,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*1B*/	INST_ENTRY( LDR,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*1C*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1D*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1E*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1F*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*20*/	INST_ENTRY( LB,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*21*/	INST_ENTRY( LH,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*22*/	INST_ENTRY( LWL,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*23*/	INST_ENTRY( LW,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*24*/	INST_ENTRY( LBU,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*25*/	INST_ENTRY( LHU,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*26*/	INST_ENTRY( LWR,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*27*/	INST_ENTRY( LWU,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*28*/	INST_ENTRY( SB,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*29*/	INST_ENTRY( SH,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2A*/	INST_ENTRY( SWL,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2B*/	INST_ENTRY( SW,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2C*/	INST_ENTRY( SDL,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2D*/	INST_ENTRY( SDR,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2E*/	INST_ENTRY( SWR,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2F*/	INST_ENTRY( CACHE,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*30*/	INST_ENTRY( LL,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*31*/	INST_ENTRY( LWC1,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*32*/	INST_ENTRY( LWC2,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*33*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*34*/	INST_ENTRY( LLD,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*35*/	INST_ENTRY( LDC1,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*36*/	INST_ENTRY( LDC2,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*37*/	INST_ENTRY( LD,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*38*/	INST_ENTRY( SC,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*39*/	INST_ENTRY( SWC1,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*3A*/	INST_ENTRY( SWC2,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*3B*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*3C*/	INST_ENTRY( SCD,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*3D*/	INST_ENTRY( SDC1,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*3E*/	INST_ENTRY( SDC2,	" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*3F*/	INST_ENTRY( SD,		" %t, %i(%s)",	0, 1,              DEFAULT_INSTRUCTION_PC ),
 };
 
 /* Special opcodes.
  * The first six bits are 000000 and the instruction is encoded in the last six bits. */
 
 mipsInstrTbl specialInstructionTable[] = {
-/*00*/	INST_ENTRY( SLL,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*01*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*02*/	INST_ENTRY( SRL,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*03*/	INST_ENTRY( SRA,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*04*/	INST_ENTRY( SLLV,	" %d, %t, %s",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*05*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*06*/	INST_ENTRY( SRLV,	" %d, %t, %s",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*07*/	INST_ENTRY( SRAV,	" %d, %t, %s",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*08*/	INST_ENTRY( JR,		" %s",		1, DEFAULT_CYCLES, 0 ), 
-/*09*/	INST_ENTRY( JALR,	" %s",		1, DEFAULT_CYCLES, 0 ), 
-/*0A*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0B*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0C*/	INST_ENTRY( SYSCALL,	"",		0, DEFAULT_CYCLES, 0 ), 
-/*0D*/	INST_ENTRY( BREAK,	"",		0, DEFAULT_CYCLES, 0 ), 
-/*0E*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0F*/	INST_ENTRY( SYNC,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*10*/	INST_ENTRY( MFHI,	" %d",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*11*/	INST_ENTRY( MTHI,	" %s",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*12*/	INST_ENTRY( MFLO,	" %d",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*13*/	INST_ENTRY( MTLO,	" %s",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*14*/	INST_ENTRY( DSLLV,	" %d, %t, %s",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*15*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*16*/	INST_ENTRY( DSRLV,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*17*/	INST_ENTRY( DSRAV,	" %d, %t, %s",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*18*/	INST_ENTRY( MULT,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*19*/	INST_ENTRY( MULTU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1A*/	INST_ENTRY( DIV,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1B*/	INST_ENTRY( DIVU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*1C*/	INST_ENTRY( DMULT,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*1D*/	INST_ENTRY( DMULTU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*1E*/	INST_ENTRY( DDIV,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*1F*/	INST_ENTRY( DDIVU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*20*/	INST_ENTRY( ADD,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*21*/	INST_ENTRY( ADDU,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*22*/	INST_ENTRY( SUB,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*23*/	INST_ENTRY( SUBU,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*24*/	INST_ENTRY( AND,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*25*/	INST_ENTRY( OR,		" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*26*/	INST_ENTRY( XOR,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*27*/	INST_ENTRY( NOR,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*28*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*29*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*2A*/	INST_ENTRY( SLT,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*2B*/	INST_ENTRY( SLTU,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*2C*/	INST_ENTRY( DADD,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*2D*/	INST_ENTRY( DADDU,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*2E*/	INST_ENTRY( DSUB,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*2F*/	INST_ENTRY( DSUBU,	" %d, %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*30*/	INST_ENTRY( TGE,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*31*/	INST_ENTRY( TGEU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*32*/	INST_ENTRY( TLT,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*33*/	INST_ENTRY( TLTU,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*34*/	INST_ENTRY( TEQ,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*35*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*36*/	INST_ENTRY( TNE,	" %s, %t",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*37*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*38*/	INST_ENTRY( DSLL,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*39*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*3A*/	INST_ENTRY( DSRL,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*3B*/	INST_ENTRY( DSRA,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*3C*/	INST_ENTRY( DSLL32,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*3D*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*3C*/	INST_ENTRY( DSRL32,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*3F*/	INST_ENTRY( DSRA32,	" %d, %t, %h",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
+/*00*/	INST_ENTRY( SLL,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*01*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*02*/	INST_ENTRY( SRL,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*03*/	INST_ENTRY( SRA,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*04*/	INST_ENTRY( SLLV,	" %d, %t, %s",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*05*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*06*/	INST_ENTRY( SRLV,	" %d, %t, %s",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*07*/	INST_ENTRY( SRAV,	" %d, %t, %s",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*08*/	INST_ENTRY( JR,		" %s",		1, 1,              0 ), 
+/*09*/	INST_ENTRY( JALR,	" %s",		1, 1,              0 ), 
+/*0A*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0B*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0C*/	INST_ENTRY( SYSCALL,	"",		0, 1,              0 ), 
+/*0D*/	INST_ENTRY( BREAK,	"",		0, 1,              0 ), 
+/*0E*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0F*/	INST_ENTRY( SYNC,	"",		0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*10*/	INST_ENTRY( MFHI,	" %d",		0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*11*/	INST_ENTRY( MTHI,	" %s",		0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*12*/	INST_ENTRY( MFLO,	" %d",		0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*13*/	INST_ENTRY( MTLO,	" %s",		0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*14*/	INST_ENTRY( DSLLV,	" %d, %t, %s",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*15*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*16*/	INST_ENTRY( DSRLV,	" %d, %t, %h",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*17*/	INST_ENTRY( DSRAV,	" %d, %t, %s",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*18*/	INST_ENTRY( MULT,	" %s, %t",	0, 12,             DEFAULT_INSTRUCTION_PC ), 
+/*19*/	INST_ENTRY( MULTU,	" %s, %t",	0, 12,             DEFAULT_INSTRUCTION_PC ), 
+/*1A*/	INST_ENTRY( DIV,	" %s, %t",	0, 75,             DEFAULT_INSTRUCTION_PC ), 
+/*1B*/	INST_ENTRY( DIVU,	" %s, %t",	0, 75,             DEFAULT_INSTRUCTION_PC ), 
+/*1C*/	INST_ENTRY( DMULT,	" %s, %t",	0, 20,             DEFAULT_INSTRUCTION_PC ),
+/*1D*/	INST_ENTRY( DMULTU,	" %s, %t",	0, 20,             DEFAULT_INSTRUCTION_PC ),
+/*1E*/	INST_ENTRY( DDIV,	" %s, %t",	0, 139,            DEFAULT_INSTRUCTION_PC ),
+/*1F*/	INST_ENTRY( DDIVU,	" %s, %t",	0, 139,            DEFAULT_INSTRUCTION_PC ),
+/*20*/	INST_ENTRY( ADD,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*21*/	INST_ENTRY( ADDU,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*22*/	INST_ENTRY( SUB,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*23*/	INST_ENTRY( SUBU,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*24*/	INST_ENTRY( AND,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*25*/	INST_ENTRY( OR,		" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*26*/	INST_ENTRY( XOR,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*27*/	INST_ENTRY( NOR,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*28*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*29*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*2A*/	INST_ENTRY( SLT,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*2B*/	INST_ENTRY( SLTU,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*2C*/	INST_ENTRY( DADD,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*2D*/	INST_ENTRY( DADDU,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*2E*/	INST_ENTRY( DSUB,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*2F*/	INST_ENTRY( DSUBU,	" %d, %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*30*/	INST_ENTRY( TGE,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*31*/	INST_ENTRY( TGEU,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*32*/	INST_ENTRY( TLT,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*33*/	INST_ENTRY( TLTU,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*34*/	INST_ENTRY( TEQ,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*35*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*36*/	INST_ENTRY( TNE,	" %s, %t",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*37*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*38*/	INST_ENTRY( DSLL,	" %d, %t, %h",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*39*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*3A*/	INST_ENTRY( DSRL,	" %d, %t, %h",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*3B*/	INST_ENTRY( DSRA,	" %d, %t, %h",	0, 2,              DEFAULT_INSTRUCTION_PC ), 
+/*3C*/	INST_ENTRY( DSLL32,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*3D*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*3C*/	INST_ENTRY( DSRL32,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*3F*/	INST_ENTRY( DSRA32,	" %d, %t, %h",	0, 1,              DEFAULT_INSTRUCTION_PC ), 
 };
 
 /* Regimm opcodes.
  * The first six bits are 000001 and the instruction is encoded in the t register space. */
 
 mipsInstrTbl regimmInstructionTable[] = {
-/*00*/	INST_ENTRY( BLTZ,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*01*/	INST_ENTRY( BGEZ,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*02*/	INST_ENTRY( BLTZL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*03*/	INST_ENTRY( BGEZL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*04*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*05*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*06*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*07*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*08*/	INST_ENTRY( TGEI,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*09*/	INST_ENTRY( TGEIU,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0A*/	INST_ENTRY( TLTI,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0B*/	INST_ENTRY( TLTIU,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0C*/	INST_ENTRY( TEQI,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0D*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0E*/	INST_ENTRY( TNEI,	" %s, %i",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*0F*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*10*/	INST_ENTRY( BLTZAL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*11*/	INST_ENTRY( BGEZAL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*12*/	INST_ENTRY( BLTZALL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*13*/	INST_ENTRY( BGEZALL,	" %s, %i",	1, DEFAULT_CYCLES, 0 ), 
-/*14*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*15*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*16*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*17*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*18*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*19*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1A*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1B*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1C*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1D*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1E*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1F*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*00*/	INST_ENTRY( BLTZ,	" %s, %i",	1, 1,              0 ), 
+/*01*/	INST_ENTRY( BGEZ,	" %s, %i",	1, 1,              0 ), 
+/*02*/	INST_ENTRY( BLTZL,	" %s, %i",	1, 1,              0 ), 
+/*03*/	INST_ENTRY( BGEZL,	" %s, %i",	1, 1,              0 ), 
+/*04*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*05*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*06*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*07*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*08*/	INST_ENTRY( TGEI,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*09*/	INST_ENTRY( TGEIU,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0A*/	INST_ENTRY( TLTI,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0B*/	INST_ENTRY( TLTIU,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0C*/	INST_ENTRY( TEQI,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0D*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0E*/	INST_ENTRY( TNEI,	" %s, %i",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*0F*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*10*/	INST_ENTRY( BLTZAL,	" %s, %i",	1, 1,              0 ), 
+/*11*/	INST_ENTRY( BGEZAL,	" %s, %i",	1, 1,              0 ), 
+/*12*/	INST_ENTRY( BLTZALL,	" %s, %i",	1, 1,              0 ), 
+/*13*/	INST_ENTRY( BGEZALL,	" %s, %i",	1, 1,              0 ), 
+/*14*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*15*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*16*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*17*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*18*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*19*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1A*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1B*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1C*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1D*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1E*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1F*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
 };
 
 /* Coprocessor opcodes.
@@ -1645,38 +1645,38 @@ mipsInstrTbl regimmInstructionTable[] = {
  * in the s register space. */
 
 mipsCopInstrTbl coprocInstructionTable[] = {
-/*00*/	COP_INST_ENTRY( MFCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*01*/	COP_INST_ENTRY( DMFCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*02*/	COP_INST_ENTRY( CFCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*03*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*04*/	COP_INST_ENTRY( MTCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*05*/	COP_INST_ENTRY( DMTCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*06*/	COP_INST_ENTRY( CTCz,		" %t, %d",	0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*07*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*08*/	COP_INST_ENTRY( RNOP,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* BC */
-/*09*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0A*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0B*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0C*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0D*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0E*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0F*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*10*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*11*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*12*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*13*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*14*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*15*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*16*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*17*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*18*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*19*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1A*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1B*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1C*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1D*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1E*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1F*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*00*/	COP_INST_ENTRY( MFCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*01*/	COP_INST_ENTRY( DMFCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*02*/	COP_INST_ENTRY( CFCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*03*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*04*/	COP_INST_ENTRY( MTCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*05*/	COP_INST_ENTRY( DMTCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*06*/	COP_INST_ENTRY( CTCz,		" %t, %d",	0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*07*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*08*/	COP_INST_ENTRY( RNOP,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* BC */
+/*09*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0A*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0B*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0C*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0D*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0E*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0F*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*10*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*11*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*12*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*13*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*14*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*15*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*16*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*17*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*18*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*19*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1A*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1B*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1C*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1D*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1E*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1F*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
 };
 
 /* Coprocessor 0 opcodes.
@@ -1685,38 +1685,38 @@ mipsCopInstrTbl coprocInstructionTable[] = {
 /* COP0 needs to go somewhere >.> */
 
 mipsInstrTbl cop0InstructionTable[] = {
-/*00*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*01*/	INST_ENTRY( TLBR,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*02*/	INST_ENTRY( TLBWI,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), 
-/*03*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*04*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*05*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*06*/	INST_ENTRY( TLBWR,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*07*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*08*/	INST_ENTRY( TLBP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ),
-/*09*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0A*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0B*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0C*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0D*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0E*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0F*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*10*/	INST_ENTRY( RESV,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*11*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*12*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*13*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*14*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*15*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*16*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*17*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*18*/	INST_ENTRY( ERET,	"",		0, DEFAULT_CYCLES, 8 ),
-/*19*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1A*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1B*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1C*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1D*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1E*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1F*/	INST_ENTRY( RNOP,	"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*00*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*01*/	INST_ENTRY( TLBR,	"",		0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*02*/	INST_ENTRY( TLBWI,	"",		0, 1,              DEFAULT_INSTRUCTION_PC ), 
+/*03*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*04*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*05*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*06*/	INST_ENTRY( TLBWR,	"",		0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*07*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*08*/	INST_ENTRY( TLBP,	"",		0, 1,              DEFAULT_INSTRUCTION_PC ),
+/*09*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0A*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0B*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0C*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0D*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0E*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0F*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*10*/	INST_ENTRY( RESV,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*11*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*12*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*13*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*14*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*15*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*16*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*17*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*18*/	INST_ENTRY( ERET,	"",		0, 1,              8 ),
+/*19*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1A*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1B*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1C*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1D*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1E*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1F*/	INST_ENTRY( RNOP,	"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
 };
 
 /* Coprocessor branch opcodes.
@@ -1724,166 +1724,37 @@ mipsInstrTbl cop0InstructionTable[] = {
  * in the t register space. */
 
 mipsCopInstrTbl coprocBcInstructionTable[] = {
-/*00*/	COP_INST_ENTRY( BCzF,		" %i",		1, DEFAULT_CYCLES, 0 ),
-/*01*/	COP_INST_ENTRY( BCzT,		" %i",		1, DEFAULT_CYCLES, 0 ),
-/*02*/	COP_INST_ENTRY( BCzFL,		" %i",		1, DEFAULT_CYCLES, 0 ),
-/*03*/	COP_INST_ENTRY( BCzTL,		" %i",		1, DEFAULT_CYCLES, 0 ),
-/*04*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*05*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*06*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*07*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*08*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*09*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0A*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0B*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0C*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0D*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0E*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*0F*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*10*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*11*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*12*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*13*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*14*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*15*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*16*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*17*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*18*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*19*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1A*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1B*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1C*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1D*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1E*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
-/*1F*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*00*/	COP_INST_ENTRY( BCzF,		" %i",		1, 1,              0 ),
+/*01*/	COP_INST_ENTRY( BCzT,		" %i",		1, 1,              0 ),
+/*02*/	COP_INST_ENTRY( BCzFL,		" %i",		1, 1,              0 ),
+/*03*/	COP_INST_ENTRY( BCzTL,		" %i",		1, 1,              0 ),
+/*04*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*05*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*06*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*07*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*08*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*09*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0A*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0B*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0C*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0D*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0E*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*0F*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*10*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*11*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*12*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*13*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*14*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*15*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*16*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*17*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*18*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*19*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1A*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1B*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1C*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1D*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1E*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
+/*1F*/	COP_INST_ENTRY( RESV,		"",		0, 0,              DEFAULT_INSTRUCTION_PC ), /* Nothing */
 };
 
-void execOpcode(mipsCpu* cpu, void *d)
-{
-	mipsDasm *dasm = d;
-#ifdef DEBUG		
-	printf("Instruction 0x%08X Function 0x%08X\n", dasm->instruction, dasm->funct);
-#endif
-	if(dasm->instruction == 0) {
-		if(dasm->funct <= SPECIAL_INST_COUNT) {
-			specialInstructionTable[dasm->funct].execute(cpu, dasm);
-			advanceCycles(cpu, specialInstructionTable[dasm->funct].cycles);
-			advancePC(cpu, specialInstructionTable[dasm->funct].pc);
-		}else{
-#ifdef DEBUG
-			printf("Function is too high!\n");
-#endif
-		}
-	}else if(dasm->instruction == 1) {
-		if(dasm->rt <= REGIMM_INST_COUNT) {
-			regimmInstructionTable[dasm->rt].execute(cpu, dasm);
-			advanceCycles(cpu, regimmInstructionTable[dasm->rt].cycles);
-			advancePC(cpu, regimmInstructionTable[dasm->rt].pc);
-		}else{
-#ifdef DEBUG
-			printf("rt is too high!\n");
-#endif
-		}
-	}else if((dasm->instruction & ~0x3) == 0x10) {
-		if (dasm->rs <= COPROC_INST_COUNT) {
-			if( dasm->rs == 0x8) {
-				if(dasm->rs <= COPROC_BC_INST_COUNT) {
-					if(coprocBcInstructionTable[dasm->rt].execute == MIPS_COP_INSTR_NAME(RNOP))
-						copxHandler(cpu, dasm);
-					else {
-						coprocBcInstructionTable[dasm->rt].execute(cpu, dasm, dasm->instruction & 0x3);
-						advanceCycles(cpu, coprocBcInstructionTable[dasm->rt].cycles);
-						advancePC(cpu, coprocBcInstructionTable[dasm->rt].pc);
-					}
-				}else{
-#ifdef DEBUG
-					printf("rt is too high!\n");
-#endif
-				}
-			}else if(dasm->rs & 0x10) {
-				if(dasm->funct <= COPROC_COP0_INST_COUNT) {
-					if(cop0InstructionTable[dasm->funct].execute == MIPS_INSTR_NAME(RNOP))
-						cop0Handler(cpu, dasm);
-					else {
-						cop0InstructionTable[dasm->funct].execute(cpu, dasm);
-						advanceCycles(cpu, cop0InstructionTable[dasm->funct].cycles);
-						advancePC(cpu, cop0InstructionTable[dasm->funct].pc);
-					}
-				}else{
-#ifdef DEBUG
-					printf("Function is too high!\n");
-#endif
-				}
-			}else{
-				if(coprocInstructionTable[dasm->rs].execute == MIPS_COP_INSTR_NAME(RNOP))
-					copxHandler(cpu, dasm);
-				else {
-					coprocInstructionTable[dasm->rs].execute(cpu, dasm, dasm->instruction & 0x3);
-					advanceCycles(cpu, coprocInstructionTable[dasm->rs].cycles);
-					advancePC(cpu, coprocInstructionTable[dasm->rs].pc);
-				}
-			}
-		}else{
-#ifdef DEBUG
-			printf("rs is too high!\n");
-#endif
-		}
-	}else{
-		if(dasm->instruction <= NORMAL_INST_COUNT) {
-			instructionTable[dasm->instruction].execute(cpu, dasm);
-			advanceCycles(cpu, instructionTable[dasm->instruction].cycles);
-			advancePC(cpu, instructionTable[dasm->instruction].pc);
-		}else{
-#ifdef DEBUG
-			printf("Instruction is too high!\n");
-#endif
-		}
-	}
-}
-
-char* textOpcode(mipsCpu* cpu, void *d)
-{
-	mipsDasm *dasm = dasm;
-	if(dasm->instruction == 0) {
-		if(dasm->funct <= SPECIAL_INST_COUNT) {
-			return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
-		}else{
-#ifdef DEBUG
-			printf("Function is too high!\n");
-#endif
-			return "Not implemented";
-		}
-	}else if(dasm->instruction == 1) {
-		if(dasm->rt <= REGIMM_INST_COUNT) {
-			return dasmFormat(regimmInstructionTable[dasm->rt].textDisasm, dasm);
-		}else{
-#ifdef DEBUG
-			printf("rt is too high!\n");
-#endif
-			return "Not implemented";
-		}
-	}else if((dasm->instruction & ~0x3) == 0x10) {
-		if(dasm->rs <= COPROC_INST_COUNT) {
-			if(dasm->rs == 0x8)
-				return dasmFormat(coprocBcInstructionTable[dasm->rt].textDisasm, dasm);
-			else if(dasm->rs & 0x10)
-				return dasmFormat(cop0InstructionTable[dasm->funct].textDisasm, dasm);
-			else
-				return dasmFormat(coprocInstructionTable[dasm->rs].textDisasm, dasm);
-		}else{
-#ifdef DEBUG
-			printf("rs is too high!\n");
-#endif
-			return "Not implemented";
-		}
-	}else{
-		if(dasm->instruction <= NORMAL_INST_COUNT) {
-			return dasmFormat(instructionTable[dasm->instruction].textDisasm, dasm);
-		}else{
-#ifdef DEBUG
-			printf("Instruction is too high!\n");
-#endif
-			return "Not implemented";
-		}
-	}
-}
