@@ -10,6 +10,8 @@ static int gfx_mode = 0;
 static int gfx_enabled = 0;
 static int o = 0;
 static int delay = 0;
+static int num_frames;
+static u32 start_time;
 
 void graphics_clearscreen()
 {
@@ -35,6 +37,8 @@ int graphics_setup()
 	
 	graphics_clearscreen();
 
+	num_frames = 0;
+	start_time = SDL_GetTicks(); 
 	gfx_mode = 0;
 	gfx_enabled = 0;
 	return 1;
@@ -99,6 +103,8 @@ void graphics_post_update()
 	if(gfx_enabled) {
 		SDL_Flip(screen);
 	}
+	num_frames++;
+	printf("%f fps\n", num_frames / (float)(SDL_GetTicks() - start_time) * 1000.0f);
 }	
 
 int graphics_poweron()

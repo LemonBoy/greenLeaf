@@ -3,10 +3,6 @@
 
 #include "types.h"
 
-#define SCREEN_X	(320)
-#define SCREEN_Y	(240)
-#define SCREEN_FPS	(120)
-
 int  graphics_setup();
 int  graphics_poweron();
 void graphics_pre_update();

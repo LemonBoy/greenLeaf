@@ -9,7 +9,7 @@ DEFS		=
 LIBS		=  `sdl-config --libs`
 LIBDIRS		= 
 INCLUDES	= -I$(BASE)/include -I$(BASE)/squidmach/include
-CFLAGS		= -g -std=c99 -Wall -pedantic -O0 `sdl-config --cflags` $(INCLUDES)
+CFLAGS		= -g -std=c99 -Wall -pedantic -O3 `sdl-config --cflags` $(INCLUDES)
 LDFLAGS		= $(LIBDIRS) $(LIBS)
 CC		= gcc
 RM		= rm
