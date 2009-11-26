@@ -7,3 +7,5 @@
 #include "emulator.h"
 #include "instructions.h"
 #include "dasm.h"
+
+mipsDasm opc;

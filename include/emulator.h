@@ -88,6 +88,7 @@ typedef struct _mipsCpu {
 	void (*writeDword)(struct _mipsCpu* cpu, u32 address, u64 value);
 } mipsCpu;
 
+#include <stdio.h>
 #include "memory.h"
 #include "instructions.h"
 #include "dasm.h"
@@ -95,6 +96,9 @@ typedef struct _mipsCpu {
 /*
  * Function prototypes.
  */
+
+extern struct _mipsDasm opc;
+char* registerToName(mipsRegister reg);
 
 INLINE void setRegister(mipsCpu* cpu, mipsReg reg, mipsRegister value)
 {
@@ -295,8 +299,6 @@ INLINE void generateException(mipsCpu* cpu, u32 exception, u32 delay)
 
 INLINE void executeOpcode(mipsCpu* cpu, u32 opcode)
 {
-	mipsDasm *opc;
-	
 	dasmOpcode(cpu, opcode, &opc);
 	
 #ifdef DEBUG
@@ -304,12 +306,12 @@ INLINE void executeOpcode(mipsCpu* cpu, u32 opcode)
 	printf(">> (%08X) %s\n", opcode, textOpcode(cpu, opc));
 #endif
 	
-	if(opc->delay && cpu->bOpcode == 0) {
+	if(opc.delay && cpu->bOpcode == 0) {
 		cpu->bOpcode = getNextPC(cpu);
 		advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 		return;
 	}else{
-		if(opc->delay)
+		if(opc.delay)
 			cpu->bOpcode = 0;
 	}
 	
@@ -318,12 +320,13 @@ INLINE void executeOpcode(mipsCpu* cpu, u32 opcode)
 		return;
 	}
 	
-	execOpcode(cpu, opc);
+	execOpcode(cpu, &opc);
 }
 
 INLINE void runProcessor(mipsCpu* cpu, int cycles)
 {
 	if(cycles == 0) cycles = 1;
+	memset(&opc, 0, sizeof(mipsDasm));
 	for(cpu->cycles = 0; cpu->cycles < cycles; )
 		executeOpcode(cpu, cpu->readOpcode(cpu, getNextPC(cpu)));
 }

@@ -4,7 +4,7 @@
 #include "types.h"
 #include "emulator.h"
 
-typedef struct {
+typedef struct _mipsDasm {
 	u8 delay;
 	u8 instruction;
 	s8 rs;
@@ -16,7 +16,7 @@ typedef struct {
 	s8 funct;
 } mipsDasm;
 
-typedef struct {
+typedef struct _mipsInstrTbl {
 	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm);
 	char textDisasm[20];
 	u8 delay;
@@ -24,7 +24,7 @@ typedef struct {
 	u8 pc;
 } mipsInstrTbl;
 
-typedef struct {
+typedef struct _mipsCopInstrTbl {
 	mipsInstruction (*execute)(mipsCpu* cpu, mipsDasm *dasm, int cop);
 	char textDisasm[20];
 	u8 delay;
@@ -43,6 +43,71 @@ char *registerName[34];
 
 char* registerToName(mipsRegister reg);
 char* dasmFormat(char *haystack, mipsDasm *dasm);
-void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm **ret);
+
+#include "instructions.h"
+
+extern struct _mipsInstrTbl cop0InstructionTable[];
+extern struct _mipsCopInstrTbl coprocBcInstructionTable[];
+extern struct _mipsCopInstrTbl coprocInstructionTable[];
+extern struct _mipsInstrTbl regimmInstructionTable[];
+extern struct _mipsInstrTbl specialInstructionTable[];
+extern struct _mipsInstrTbl instructionTable[];
+
+INLINE void dasmOpcode(mipsCpu* cpu, u32 opcode, mipsDasm *ret)
+{
+	mipsDasm *dasm = ret;
+	
+	dasm->instruction = INSTRUCTION(opcode);
+	dasm->rs = RS(opcode);
+	dasm->rt = RT(opcode);
+	dasm->rd = RD(opcode);
+	dasm->shift = SHIFT(opcode);
+	dasm->immediate = IMMEDIATE(opcode);
+	dasm->jump = JUMP(opcode);
+	dasm->funct = FUNCT(opcode);
+	
+	if(dasm->instruction == 0) {
+		if(dasm->funct <= SPECIAL_INST_COUNT) {
+			dasm->delay = specialInstructionTable[dasm->funct].delay;
+		}else{
+#ifdef DEBUG
+			printf("Function is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
+	}else if(dasm->instruction == 1) {
+		if(dasm->rt <= REGIMM_INST_COUNT) {
+			dasm->delay = regimmInstructionTable[dasm->rt].delay;
+		}else{
+#ifdef DEBUG
+			printf("rt is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
+	}else if((dasm->instruction & ~0x3) == 0x10) {
+		if(dasm->rs <= COPROC_INST_COUNT) {
+			if(dasm->rs == 0x8)
+				dasm->delay = coprocBcInstructionTable[dasm->rt].delay;
+			else if(dasm->rs & 0x10)
+				dasm->delay = cop0InstructionTable[dasm->funct].delay;
+			else
+				dasm->delay = coprocInstructionTable[dasm->rs].delay;
+		}else{
+#ifdef DEBUG
+			printf("rs is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
+	}else{
+		if(dasm->instruction <= NORMAL_INST_COUNT) {
+			dasm->delay = instructionTable[dasm->instruction].delay;
+		}else{
+#ifdef DEBUG
+			printf("Instruction is too high!\n");
+#endif
+			dasm->delay = 0;
+		}
+	}	
+}
 
 #endif

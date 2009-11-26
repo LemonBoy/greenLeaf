@@ -1758,8 +1758,9 @@ mipsCopInstrTbl coprocBcInstructionTable[] = {
 /*1F*/	COP_INST_ENTRY( RESV,		"",		0, DEFAULT_CYCLES, DEFAULT_INSTRUCTION_PC ), /* Nothing */
 };
 
-void execOpcode(mipsCpu* cpu, mipsDasm *dasm)
+void execOpcode(mipsCpu* cpu, void *d)
 {
+	mipsDasm *dasm = d;
 #ifdef DEBUG		
 	printf("Instruction 0x%08X Function 0x%08X\n", dasm->instruction, dasm->funct);
 #endif
@@ -1840,8 +1841,9 @@ void execOpcode(mipsCpu* cpu, mipsDasm *dasm)
 	}
 }
 
-char* textOpcode(mipsCpu* cpu, mipsDasm *dasm)
+char* textOpcode(mipsCpu* cpu, void *d)
 {
+	mipsDasm *dasm = dasm;
 	if(dasm->instruction == 0) {
 		if(dasm->funct <= SPECIAL_INST_COUNT) {
 			return dasmFormat(specialInstructionTable[dasm->funct].textDisasm, dasm);
