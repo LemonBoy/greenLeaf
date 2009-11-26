@@ -50,7 +50,7 @@ void copxHandler(mipsCpu* cpu, mipsDasm *dasm)
 	advancePC(cpu, DEFAULT_INSTRUCTION_PC);
 }
 
-static mipsRegister _signextend(mipsRegister_u input, int origsize, int newsize)
+INLINE static mipsRegister _signextend(mipsRegister_u input, int origsize, int newsize)
 {
 	if(origsize == newsize)
 		return input;
@@ -66,7 +66,7 @@ static mipsRegister _signextend(mipsRegister_u input, int origsize, int newsize)
 	return input;
 }
 
-static mipsRegister _zeroextend(mipsRegister_u input, int origsize, int newsize)
+INLINE static mipsRegister _zeroextend(mipsRegister_u input, int origsize, int newsize)
 {
 	if(origsize == newsize)
 		return input;
